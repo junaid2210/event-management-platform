@@ -15,6 +15,7 @@ This repository contains the backend for a **college-focused event management pl
 ## 🗂️ Project Structure
 Use this as a map to navigate the logic:
 
+```text
 src/
 ├── config/             # Database connection (db.js)
 ├── controllers/        # Logic for handling requests (auth, events)
@@ -24,7 +25,7 @@ src/
 ├── utils/              # Helpers (generateToken.js)
 ├── app.js              # Express app setup
 └── server.js           # Entry point (port listener)
-
+```
 ---
 
 ## 👥 User Roles & Permissions
