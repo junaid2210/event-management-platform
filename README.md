@@ -1,99 +1,49 @@
 # Event Management Platform – Backend (MVP)
 
-This repository contains the backend for a **college-focused event management platform**.
-
-The backend is designed with:
-- Role-based access control
-- JWT authentication
-- Clean data modeling
-- Strict business rules
-
-The focus is **correctness, security, and scalability**, not feature overload.
+This repository contains the backend for a **college-focused event management platform**. It is designed to be a lightweight, secure, and scalable API for managing campus events.
 
 ---
 
 ## 🚀 Tech Stack
-
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- JWT (Authentication)
-- bcrypt (Password hashing)
-
----
-
-## 👥 User Roles
-
-### 1. Student
-- View events
-- (Upcoming) Register for events
-- Cannot create events
-
-### 2. Organizer
-- Create and manage events
-- View registrations for their events
-- Cannot register for their own events
+* **Node.js & Express.js** - Server framework
+* **MongoDB & Mongoose** - Database and ODM
+* **JWT** - Stateless Authentication
+* **bcrypt** - Secure Password Hashing
 
 ---
 
 ## 🗂️ Project Structure
+This high-level overview helps navigate the logic without digging into the code:
 
+```text
 src/
-├── controllers/
-│ ├── auth.controller.js
-│ └── event.controller.js
-├── middleware/
-│ ├── auth.js
-│ └── role.js
-├── models/
-│ ├── User.js
-│ └── Event.js
-├── routes/
-│ ├── auth.routes.js
-│ └── event.routes.js
-├── utils/
-│ └── generateToken.js
-├── config/
-│ └── db.js
-├── app.js
-└── server.js
+├── config/             # Database connection (db.js)
+├── controllers/        # Logic for handling requests (auth, events)
+├── middleware/         # Auth & Role verification (auth.js, role.js)
+├── models/             # Mongoose schemas (User.js, Event.js)
+├── routes/             # API route definitions
+├── utils/              # Helpers (generateToken.js)
+├── app.js              # Express app setup
+└── server.js           # Entry point (port listener)
 
-yaml
-Copy code
+Role,Permissions,Restrictions
+Student,"View events, (Upcoming) Register",Cannot create/edit events
+Organizer,"Create/Manage events, View attendees",Cannot register for own events
 
----
+🔐 Authentication & Security
+JWT-based: Token must be sent in the header: Authorization: Bearer <token>
 
-## 🔐 Authentication
+Payload: Contains userId and role.
 
-Authentication is **JWT-based**.
+Security: Passwords are never stored in plain text; Role-based middleware enforces strict access.
 
-- Token must be sent in headers:
-Authorization: Bearer <token>
+📌 API Endpoints
+🔑 Authentication
+Method,Endpoint,Description
+POST,/auth/register,Register Student/Organizer
+POST,/auth/login,Returns JWT and user details
 
-yaml
-Copy code
-
-- Token payload contains:
-  - user ID
-  - user role
-
----
-
-## 📌 API Endpoints
-
----
-
-### 🔑 Auth Routes
-
-#### Register User
-POST /auth/register
-
-css
-Copy code
-
-**Request Body**
-```json
+Registration Body Example:
 {
   "name": "John Doe",
   "email": "john@example.com",
@@ -101,46 +51,14 @@ Copy code
   "role": "student",
   "collegeId": "JECRC"
 }
-Behavior
 
-Validates all fields
+📅 Events
+Method,Endpoint,Auth Required,Description
+POST,/events,Organizer,Create a new event
+GET,/events,Public/Optional,Get upcoming events
+GET,/events?past=true,Public/Optional,View archive of past events
 
-Hashes password before storing
-
-Prevents duplicate email registration
-
-Login User
-bash
-Copy code
-POST /auth/login
-Request Body
-
-json
-Copy code
-{
-  "email": "john@example.com",
-  "password": "secret123"
-}
-Response
-
-Returns JWT token
-
-Returns user details (password never included)
-
-📅 Event Routes
-Create Event (Organizer only)
-bash
-Copy code
-POST /events
-Headers
-
-makefile
-Copy code
-Authorization: Bearer <organizer-token>
-Request Body
-
-json
-Copy code
+Create Event Body Example:
 {
   "title": "Tech Fest 2026",
   "description": "Annual technical event",
@@ -149,115 +67,31 @@ Copy code
   "venue": "Main Auditorium",
   "capacity": 200
 }
-Rules
 
-Only organizers can create events
-
-createdBy is taken from logged-in user
-
-collegeId is taken from logged-in user
-
-Students are blocked at middleware level
-
-Get Events (Public / Optional Auth)
-bash
-Copy code
-GET /events
-Behavior
-
-Returns upcoming events by default
-
-Returns only published events
-
-If user is logged in, results are filtered by collegeId
-
-Get Past Events
-bash
-Copy code
-GET /events?past=true
 🧠 Data Models
 User
-name
-
-email (unique)
-
-passwordHash
-
-role (student | organizer)
-
-collegeId
+name, email (unique), passwordHash, role (student/organizer), collegeId.
 
 Event
-title
+title, description, date, time, venue, capacity.
 
-description
+createdBy (Reference to User), collegeId, isPublished.
 
-date
+⚠️ MVP Limitations & Roadmap
+Current: Auth and Event CRUD are stable.
 
-time
+Next: Event registration logic (Student ↔ Event).
 
-venue
-
-capacity
-
-createdBy (organizer reference)
-
-collegeId
-
-isPublished
-
-🔒 Security Rules
-Passwords are never stored or returned in plain text
-
-JWT is verified on protected routes
-
-Role-based middleware enforces permissions
-
-Middleware always stops execution on failure
-
-Event ownership is enforced at backend level
-
-⚠️ MVP Limitations
-Not implemented yet:
-
-Event registration (student ↔ event)
-
-Payments
-
-QR check-in
-
-Admin dashboard
-
-Notifications
-
-These will be added after core flows are stable.
+Future: Payments, QR check-in, and Admin Dashboard.
 
 🧪 Testing
-APIs tested using Postman
+All routes have been verified using Postman for:
 
-Verified scenarios:
+Successful registration and login.
 
-Successful registration & login
+Prevention of duplicate emails.
 
-Invalid credentials
+Unauthorized role access (Students blocked from creating events).
 
-Missing required fields
-
-Unauthorized role access
-
-Event creation security
-
-🏁 Current Status
-Backend MVP is stable and functional.
-
-
----
-
-
-
-
-
-
-
-
+Automated token verification.
 
