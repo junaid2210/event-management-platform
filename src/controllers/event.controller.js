@@ -31,4 +31,34 @@ const createEvent = async (req, res) => {
     }
 };
 
-module.exports = {createEvent};
+const getEvents = async (req,res) => {
+    try{
+        const {past} = req.query;
+
+        const query = {
+            isPublished: true
+        };
+
+        if(req.user){
+            query.collegeId = req.user.collegeId;
+        }
+
+        const today = new Date();
+
+        if(past === 'true'){
+            query.date = {$lt: today};
+        }
+        else{
+            query.date = {$gte: today};
+        }
+
+        const events = await Event.find(query).sort({date:1});
+
+        res.json(events);
+    }catch(error){
+        console.error(error);
+        res.status(500).json({message:'Server error'});
+    }
+}
+
+module.exports = {createEvent,getEvents};
