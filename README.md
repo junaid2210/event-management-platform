@@ -30,15 +30,15 @@ Role,Permissions,Restrictions
 Student,"View events, (Upcoming) Register",Cannot create/edit events
 Organizer,"Create/Manage events, View attendees",Cannot register for own events
 
-🔐 Authentication & Security
+##🔐 Authentication & Security
 JWT-based: Token must be sent in the header: Authorization: Bearer <token>
 
 Payload: Contains userId and role.
 
 Security: Passwords are never stored in plain text; Role-based middleware enforces strict access.
 
-📌 API Endpoints
-🔑 Authentication
+##📌 API Endpoints
+#🔑 Authentication
 Method,Endpoint,Description
 POST,/auth/register,Register Student/Organizer
 POST,/auth/login,Returns JWT and user details
@@ -52,7 +52,7 @@ Registration Body Example:
   "collegeId": "JECRC"
 }
 
-📅 Events
+##📅 Events
 Method,Endpoint,Auth Required,Description
 POST,/events,Organizer,Create a new event
 GET,/events,Public/Optional,Get upcoming events
@@ -68,7 +68,7 @@ Create Event Body Example:
   "capacity": 200
 }
 
-🧠 Data Models
+##🧠 Data Models
 User
 name, email (unique), passwordHash, role (student/organizer), collegeId.
 
@@ -77,14 +77,14 @@ title, description, date, time, venue, capacity.
 
 createdBy (Reference to User), collegeId, isPublished.
 
-⚠️ MVP Limitations & Roadmap
+##⚠️ MVP Limitations & Roadmap
 Current: Auth and Event CRUD are stable.
 
 Next: Event registration logic (Student ↔ Event).
 
 Future: Payments, QR check-in, and Admin Dashboard.
 
-🧪 Testing
+##🧪 Testing
 All routes have been verified using Postman for:
 
 Successful registration and login.
