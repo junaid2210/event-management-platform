@@ -50,6 +50,7 @@ src/
 * POST /auth/register - Register Student/Organizer
 * POST /auth/login - Returns JWT and user details
 
+```text
 Registration Body Example:
 {
   "name": "John Doe",
@@ -58,6 +59,7 @@ Registration Body Example:
   "role": "student",
   "collegeId": "JECRC"
 }
+```
 
 ### 📅 Events
 * POST /events - (Organizer Only) Create a new event
