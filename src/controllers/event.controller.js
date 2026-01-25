@@ -2,7 +2,7 @@ const Event = require('../models/Event.model');
 
 const createEvent = async (req, res) => {
     try{
-        const {title, description, date, time, venue, capacity} = req.body;
+        const {title, description, date, time, venue, capacity, isPublished} = req.body;
 
         //1.Validate input
         if(!title || !description || !date || !time || !venue || !capacity){
@@ -17,6 +17,7 @@ const createEvent = async (req, res) => {
             time,
             venue,
             capacity,
+            isPublished,
             createdBy: req.user._id,
             collegeId: req.user.collegeId
         });
