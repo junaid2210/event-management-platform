@@ -62,4 +62,25 @@ const registerForEvent = async (req, res) => {
     }
 };
 
-module.exports = { registerForEvent };
+const getMyRegisteration = async (req, res) => {
+    try{
+        const registerations = await Registeration.find({
+            userId: req.user._id,
+        })
+        .populate('eventId','title date time venue')
+        .sort({ createdAt: -1 });
+
+        const events = registerations.map((reg) => ({
+            registerationId : reg._id,
+            event: reg.eventId,
+            registeredAt: reg.createdAt
+        }));
+
+        res.status(200).json(events);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = { registerForEvent, getMyRegisteration };
