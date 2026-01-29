@@ -83,4 +83,44 @@ const getMyRegisteration = async (req, res) => {
     }
 };
 
-module.exports = { registerForEvent, getMyRegisteration };
+const getEventRegisteration = async (req,res) => {
+    try{
+        const eventId = req.params.id;
+
+        //1. Fetch event
+        const event = await Event.findById(eventId);
+        if(!event) {
+            return res.status(404).json({message:'Event not found'});
+        }
+
+        //2. Ownership check
+        if(event.createdBy.toString() !== req.user._id.toString()) {
+            return res.status(403).json({message:'Access denied'});
+        }
+
+        //3. Fetch registerations
+        const registerations = await Registeration.find({eventId})
+        .populate('userId', 'name email')
+        .sort({createdAt: -1});
+
+        res.json({
+            event: {
+                id: event._id,
+                title: event.title,
+                date: event.date,
+                venue: event.venue,
+                capacity: event.capacity
+            },
+            totalRegisterations: registerations.length,
+            registerations: registerations.map((reg) => ({
+                user: reg.userId,
+                registeredAt: reg.createdAt
+            }))
+        });
+    } catch(error){
+        console.error(error);
+        res.status(500).json({message:'Server error'});
+    }
+};
+
+module.exports = { registerForEvent, getMyRegisteration, getEventRegisteration};
