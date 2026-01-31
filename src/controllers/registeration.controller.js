@@ -123,4 +123,41 @@ const getEventRegisteration = async (req,res) => {
     }
 };
 
-module.exports = { registerForEvent, getMyRegisteration, getEventRegisteration};
+const cancelRegisteration = async (req,res) => {
+    try{
+        const eventId = req.params.id;
+        const userId = req.user._id;
+
+        //1.Find Event
+        const event = await Event.findById(eventId);
+        if(!event){
+            return res.status(404).json({message:'Event not found'});
+        }
+
+        //2.Check event date (no cancel after event)
+        const today = new Date();
+        if(event.date < today) {
+            return res.status(400).json({message:'Cannot cancel registration for past events'});
+        }
+
+        //3. Find registration
+        const registeration = await Registeration.findOne({
+            userId,
+            eventId
+        });
+
+        if(!registeration) {
+            return res.status(404).json({message:'Registeration not found'});
+        }
+
+        //4. Delete registeration
+        await registeration.deleteOne();
+
+        res.json({message:'Registeration cancelled successfully'});
+    } catch(error){
+        console.error(error);
+        res.status(500).json({message:'Server error'});
+    }
+};
+
+module.exports = { registerForEvent, getMyRegisteration, getEventRegisteration, cancelRegisteration};
