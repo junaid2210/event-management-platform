@@ -1,88 +1,94 @@
 # Event Management Platform – Backend (MVP)
 
-This repository contains the backend for a **college-focused event management platform**. It is designed to be a lightweight, secure, and scalable API.
+This repository contains the backend for a college-focused event management platform. It is designed as a secure, role-based, and scalable REST API that supports the full event lifecycle from creation to registration.
 
 ---
 
 ## 🚀 Tech Stack
-* Node.js & Express.js - Server framework
-* MongoDB & Mongoose - Database and ODM
-* JWT - Stateless Authentication
-* bcrypt - Secure Password Hashing
+
+- Node.js + Express.js — Backend framework
+- MongoDB + Mongoose — Database & ODM
+- JWT — Stateless authentication
+- bcrypt — Secure password hashing
 
 ---
 
 ## 🗂️ Project Structure
-Use this as a map to navigate the logic:
 
-```text
 src/
-├── config/             # Database connection (db.js)
-├── controllers/        # Logic for handling requests (auth, events)
-├── middleware/         # Auth & Role verification (auth.js, role.js)
-├── models/             # Mongoose schemas (User.js, Event.js)
-├── routes/             # API route definitions
-├── utils/              # Helpers (generateToken.js)
-├── app.js              # Express app setup
-└── server.js           # Entry point (port listener)
-```
+├── config/
+│   └── db.js                 # MongoDB connection
+├── controllers/
+│   ├── auth.controller.js     # Register & login logic
+│   ├── event.controller.js    # Event creation & listing
+│   └── registration.controller.js # Register / cancel / view registrations
+├── middleware/
+│   ├── auth.js               # JWT verification
+│   └── role.js               # Role-based access control
+├── models/
+│   ├── User.js               # User schema
+│   ├── Event.js              # Event schema
+│   └── Registration.js       # User–Event relationship
+├── routes/
+│   ├── auth.routes.js
+│   ├── event.routes.js
+│   └── registration.routes.js
+├── utils/
+│   └── generateToken.js      # JWT helper
+├── app.js                    # Express app configuration
+└── server.js                 # Entry point
+
 ---
 
 ## 👥 User Roles & Permissions
 
-| Role | Permissions | Restrictions |
-| :--- | :--- | :--- |
-| Student | View events, (Upcoming) Register | Cannot create/edit events |
-| Organizer | Create/Manage events, View attendees | Cannot register for own events |
+- Student: View events, Register, Cancel registration. (Cannot create or manage events).
+- Organizer: Create events, View registrations for own events. (Cannot register for any event).
 
 ---
 
 ## 🔐 Authentication & Security
-* JWT-based: Token must be sent in the header: Authorization: Bearer <token>
-* Payload: Contains userId and role.
-* Security: Passwords hashed with bcrypt; Role-based middleware enforcement.
+
+- JWT-based authentication: Token must be sent in headers: Authorization: Bearer token
+- Hashed Passwords: Passwords are secured using bcrypt before saving to MongoDB.
+- Strict Middleware: Role-based Access Control (RBAC) ensures users can only perform actions assigned to their role.
+- Payload Data: JWT includes User ID and Role for stateless authorization.
 
 ---
 
 ## 📌 API Endpoints
 
-### 🔑 Authentication
-* POST /auth/register - Register Student/Organizer
-* POST /auth/login - Returns JWT and user details
+### Authentication
+- POST /auth/register - Registers a student or organizer.
+- POST /auth/login - Returns JWT token and user details.
 
-```text
-Registration Body Example:
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "secret123",
-  "role": "student",
-  "collegeId": "JECRC"
-}
-```
+### Events
+- POST /events - (Organizer only) Create a new event.
+- GET /events - Returns all upcoming/published events.
+- GET /events?past=true - Returns past events for archival viewing.
 
-### 📅 Events
-* POST /events - (Organizer Only) Create a new event
-* GET /events - Get upcoming events
-* GET /events?past=true - View archive of past events
+### Registration (Student Only)
+- POST /events/:id/register - Register for an event (checks capacity, date, and duplicates).
+- DELETE /events/:id/register - Cancel a registration before the event date.
+- GET /users/me/registrations - View all events the logged-in student has joined.
+
+### Organizer Dashboard
+- GET /events/:id/registrations - (Owner only) View list of students (name/email) registered for a specific event.
 
 ---
 
-## 🧠 Data Models
+## 🧠 Core Business Rules
 
-### User Model
-* name, email (unique), passwordHash, role (student/organizer), collegeId.
-
-### Event Model
-* title, description, date, time, venue, capacity.
-* createdBy (Ref to User), collegeId, isPublished.
-
----
-
-## ⚠️ MVP Limitations & Roadmap
-* Current: Auth and Event CRUD are stable.
-* Next: Event registration logic (Student <-> Event).
-* Future: Payments, QR check-in, and Admin Dashboard.
+1. One-Time Registration: A unique index on (userId, eventId) prevents a student from joining the same event twice.
+2. Capacity Enforcement: Registration fails automatically once the event capacity is reached.
+3. Date Validation: Users cannot register for or cancel events that have already passed.
+4. Ownership Security: Organizers can only see registration data for events they created.
+5. Role Enforcement: Authentication middleware stops unauthorized roles from accessing restricted routes.
 
 ---
 
+## 🧪 Testing & Validation
+
+- Postman: All routes verified for success and error states (400, 401, 403, 404, 409).
+- Environment: Developed and tested on macOS using Node.js v18+.
+- Database: MongoDB Atlas / Local MongoDB Compass.
