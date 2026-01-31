@@ -15,13 +15,14 @@ This repository contains the backend for a college-focused event management plat
 
 ## 🗂️ Project Structure
 
+```text
 src/
 ├── config/
 │   └── db.js                 # MongoDB connection
 ├── controllers/
 │   ├── auth.controller.js     # Register & login logic
 │   ├── event.controller.js    # Event creation & listing
-│   └── registration.controller.js # Register / cancel / view registrations
+│   └── registration.controller.js # Register / cancel logic
 ├── middleware/
 │   ├── auth.js               # JWT verification
 │   └── role.js               # Role-based access control
@@ -37,8 +38,7 @@ src/
 │   └── generateToken.js      # JWT helper
 ├── app.js                    # Express app configuration
 └── server.js                 # Entry point
-
----
+```
 
 ## 👥 User Roles & Permissions
 
