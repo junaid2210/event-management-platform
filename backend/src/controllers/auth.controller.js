@@ -113,7 +113,7 @@ const logout = async (req, res) => {
 const getMe = async (req,res) => {
     try{
         if(!req.user){
-            res.status(401).json({message:'Not authorized'});
+            return res.status(401).json({message:'Not authorized'});
         }
 
         res.status(200).json({
