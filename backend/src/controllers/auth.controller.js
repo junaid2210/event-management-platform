@@ -64,21 +64,50 @@ const login = async (req,res) => {
         }
 
         const token = generateToken(user);
+
+        //1. Prepare the response data
+        const userData = user.toObject();
+        delete userData.passwordHash;
+        delete userData.__v;
+
+        //2. Define the cookie
+        const cookieOptions = {
+            httpOnly : true,
+            expires : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            secure : process.env.NODE_ENV === 'production',
+            sameSite : process.env.NODE_ENV == 'production' ? 'None' : 'lax',
+        };
         
-        res.json({
-            message:'Login successful',
-            token,
-            user:{
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
-        })
+        res.status(200)
+            .cookie('token',token,cookieOptions)
+            .json({
+                success: true,
+                message: 'Logged in Successfully',
+                user: userData,
+            });
     }catch(err){
-        console.error(error);
+        console.error(err);
         res.status(500).json({message:'Server error'});
     }
 };
 
-module.exports = {register, login};
+const logout = async (req, res) => {
+
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'lax',
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Logged out successfully'
+        });
+    } catch(error){
+        console.error(error);
+        res.status(500).json({message:'Server Error during logout'})
+    }
+};
+
+module.exports = {register, login, logout};
