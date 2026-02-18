@@ -110,4 +110,19 @@ const logout = async (req, res) => {
     }
 };
 
-module.exports = {register, login, logout};
+const getMe = async (req,res) => {
+    try{
+        if(!req.user){
+            res.status(401).json({message:'Not authorized'});
+        }
+
+        res.status(200).json({
+            user: req.user
+        });
+    } catch(error){
+        console.error(error);
+        res.status(500).json({message:'Server Error'});
+    }
+}
+
+module.exports = {register, login, logout, getMe};
