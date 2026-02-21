@@ -22,4 +22,7 @@ app.get('/', (req,res) => {
     res.send("API is running");
 });
 
+const errorHandler = require('./middleware/errorHandler');
+app.use(errorHandler);
+
 module.exports = app;

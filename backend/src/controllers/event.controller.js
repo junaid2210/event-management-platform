@@ -1,12 +1,13 @@
 const Event = require('../models/Event.model');
+const AppError = require('../utils/AppError');
+const catchAsync = require('../utils/catchAsync');
 
-const createEvent = async (req, res) => {
-    try{
+const createEvent = catchAsync(async (req, res, next) => {
         const {title, description, date, time, venue, capacity, isPublished} = req.body;
 
         //1.Validate input
         if(!title || !description || !date || !time || !venue || !capacity){
-            return res.status(400).json({message:'All fields are required'});
+            return next(new AppError('All fields are required',400));
         }
 
         //2.Create event
@@ -26,14 +27,9 @@ const createEvent = async (req, res) => {
             message:'Event created successfully',
             event
         });
-    }catch(error){
-        console.error(error);
-        res.status(500).json({message: 'Server error'});
-    }
-};
+});
 
-const getEvents = async (req,res) => {
-    try{
+const getEvents = catchAsync(async (req, res, next) => {
         const {past} = req.query;
 
         const query = {
@@ -56,10 +52,6 @@ const getEvents = async (req,res) => {
         const events = await Event.find(query).sort({date:1});
 
         res.json(events);
-    }catch(error){
-        console.error(error);
-        res.status(500).json({message:'Server error'});
-    }
-}
+});
 
 module.exports = {createEvent,getEvents};

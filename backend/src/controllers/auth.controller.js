@@ -1,20 +1,21 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User.model');
 const generateToken = require('../utils/generatetokens');
+const AppError = require('../utils/AppError');
+const catchAsync = require('../utils/catchAsync');
 
-const register = async (req, res) => {
-    try{
+const register = catchAsync(async (req, res, next) => {
         const {name, email, password, role, collegeId} = req.body;
 
         //1. validate input
         if(!name || !email || !password || !role || !collegeId){
-            return res.status(400).json({message:'all fields are required'});
+            return next(new AppError('all fields are required', 400));
         }
 
         //2. check if user already exists
         const existingUser = await User.findOne({email});
         if(existingUser){
-            return res.status(409).json({message:'User already exists'});
+            return next(new AppError('User already exists', 409));
         }
 
         //3. Hash password
@@ -39,28 +40,23 @@ const register = async (req, res) => {
                 role: user.role,
             }
         });
-    } catch(error) {
-        console.error(error);
-        res.status(500).json({message:'Server error'});
-    }
-};
+});
 
-const login = async (req,res) => {
-    try{
+const login = catchAsync(async (req, res, next) => {
         const {email , password} = req.body;
 
         if(!email || !password) {
-            return res.status(400).json({message:'Email and password are required'});
+            return next(new AppError('Email and password are required',400));
         }
 
         const user = await User.findOne({email});
         if(!user){
-            return res.status(401).json({message:'Invalid credentials'});
+            return next(new AppError('Invalid credentials', 401));
         }
 
         const isMatch = await bcrypt.compare(password, user.passwordHash);
         if(!isMatch){
-            return res.status(401).json({message:'Invalid credentials'});
+            return next(new AppError('Invalid credentials', 401));
         }
 
         const token = generateToken(user);
@@ -85,15 +81,9 @@ const login = async (req,res) => {
                 message: 'Logged in Successfully',
                 user: userData,
             });
-    }catch(err){
-        console.error(err);
-        res.status(500).json({message:'Server error'});
-    }
-};
+});
 
-const logout = async (req, res) => {
-
-    try {
+const logout = catchAsync(async (req, res, next) => {
         res.clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -104,25 +94,16 @@ const logout = async (req, res) => {
             success: true,
             message: 'Logged out successfully'
         });
-    } catch(error){
-        console.error(error);
-        res.status(500).json({message:'Server Error during logout'})
-    }
-};
+});
 
-const getMe = async (req,res) => {
-    try{
+const getMe = catchAsync(async (req,res) => {
         if(!req.user){
-            return res.status(401).json({message:'Not authorized'});
+            return next(new AppError('Not authorized',401));
         }
 
         res.status(200).json({
             user: req.user
         });
-    } catch(error){
-        console.error(error);
-        res.status(500).json({message:'Server Error'});
-    }
-}
+});
 
 module.exports = {register, login, logout, getMe};

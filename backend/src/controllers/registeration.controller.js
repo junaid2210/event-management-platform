@@ -1,37 +1,38 @@
 const Registeration = require('../models/Registeration');
 const Event = require('../models/Event.model.js');
+const catchAsync = require('../utils/catchAsync.js');
+const AppError = require('../utils/AppError.js');
 
-const registerForEvent = async (req, res) => {
-    try {
+const registerForEvent = catchAsync(async (req, res, next) => {
         const eventId = req.params.id;
         const userId = req.user._id;
 
         //1. Fetch event
         const event = await Event.findById(eventId);
         if(!event) {
-            return res.status(404).json({ message: 'Event not found' });
+            return next(new AppError('Event not found',404));
         }
 
         //2. Must be Published
         if(!event.isPublished) {
-            return res.status(403).json({ message: 'Event is not open for registeration'});
+            return next(new AppError('Event is not open for registeration',403));
         }
 
         //3. Must be upcoming
         const today = new Date();
         if(event.date < today) {
-            return res.status(400).json({ message: 'Registeratioin closed for this event'});
+            return next(new AppError('Registeratioin closed for this event',400));
         }
 
         //4. Student cannot be event creator
         if (event.createdBy.toString() === userId.toString()) {
-            return res.status(403).json({ message: 'Cannot registering for your own event'});
+            return next(new AppError('Cannot registering for your own event',403));
         }
 
         //5. Capacity check
-        const registerationCount = await Registeration.countDocuments({eventId});
+        const registerationCount = await Registeration.countDocuments({eventId : event._id});
         if(registerationCount >= event.capacity) {
-            return res.status(400).json({ message: 'Event is full'});
+            return next(new AppError('Event is full',400));
         }
 
         //6. Create registeration (unique index enforces one-time)
@@ -51,51 +52,38 @@ const registerForEvent = async (req, res) => {
             },
             registerationId: registeration._id
         });
-    } catch (error) {
-        //Duplicate registeration error
-        if(error.code === 11000) {
-            return res.status(409).json({ message: 'Already registered for this event'});
-        }
-        
-        console.error(error);
-        res.status(500).json({ message: 'Server error'});
-    }
-};
+});
 
-const getMyRegisteration = async (req, res) => {
-    try{
+const getMyRegisteration = catchAsync(async (req, res, next) => {
         const registerations = await Registeration.find({
             userId: req.user._id,
         })
         .populate('eventId','title date time venue')
         .sort({ createdAt: -1 });
 
-        const events = registerations.map((reg) => ({
+        const events = registerations
+        .filter(reg => reg.eventId !== null)
+        .map((reg) => ({
             registerationId : reg._id,
             event: reg.eventId,
             registeredAt: reg.createdAt
         }));
 
         res.status(200).json(events);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
+});
 
-const getEventRegisteration = async (req,res) => {
-    try{
+const getEventRegisteration = catchAsync(async (req, res, next) => {
         const eventId = req.params.id;
 
         //1. Fetch event
         const event = await Event.findById(eventId);
         if(!event) {
-            return res.status(404).json({message:'Event not found'});
+            return next(new AppError('Event not found',404));
         }
 
         //2. Ownership check
         if(event.createdBy.toString() !== req.user._id.toString()) {
-            return res.status(403).json({message:'Access denied'});
+            return next(new AppError('Access denied',403));
         }
 
         //3. Fetch registerations
@@ -117,27 +105,22 @@ const getEventRegisteration = async (req,res) => {
                 registeredAt: reg.createdAt
             }))
         });
-    } catch(error){
-        console.error(error);
-        res.status(500).json({message:'Server error'});
-    }
-};
+});
 
-const cancelRegisteration = async (req,res) => {
-    try{
+const cancelRegisteration = catchAsync(async (req, res, next) => {
         const eventId = req.params.id;
         const userId = req.user._id;
 
         //1.Find Event
         const event = await Event.findById(eventId);
         if(!event){
-            return res.status(404).json({message:'Event not found'});
+            return next(new AppError('Event not found',404));
         }
 
         //2.Check event date (no cancel after event)
         const today = new Date();
         if(event.date < today) {
-            return res.status(400).json({message:'Cannot cancel registration for past events'});
+            return next(new AppError('Cannot cancel registration for past events',400));
         }
 
         //3. Find registration
@@ -147,17 +130,13 @@ const cancelRegisteration = async (req,res) => {
         });
 
         if(!registeration) {
-            return res.status(404).json({message:'Registeration not found'});
+            return next(new AppError('Registeration not found',404));
         }
 
         //4. Delete registeration
         await registeration.deleteOne();
 
         res.json({message:'Registeration cancelled successfully'});
-    } catch(error){
-        console.error(error);
-        res.status(500).json({message:'Server error'});
-    }
-};
+});
 
 module.exports = { registerForEvent, getMyRegisteration, getEventRegisteration, cancelRegisteration};
