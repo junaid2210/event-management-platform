@@ -3,6 +3,7 @@ const User = require('../models/User.model');
 const generateToken = require('../utils/generatetokens');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+const ApiResponse = require('../utils/ApiResponse');
 
 const register = catchAsync(async (req, res, next) => {
         const {name, email, password, role, collegeId} = req.body;
@@ -31,15 +32,12 @@ const register = catchAsync(async (req, res, next) => {
         });
 
         //5. Respond 
-        res.status(201).json({
-            message: 'User registered successfully',
-            user:{
+        res.status(201).json(new ApiResponse(201,{
                 id: user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
-            }
-        });
+            },'User registered successfully'));
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -74,36 +72,33 @@ const login = catchAsync(async (req, res, next) => {
             sameSite : process.env.NODE_ENV == 'production' ? 'None' : 'lax',
         };
         
-        res.status(200)
-            .cookie('token',token,cookieOptions)
-            .json({
-                success: true,
-                message: 'Logged in Successfully',
-                user: userData,
-            });
+        res.status(200).cookie('token',token,cookieOptions)
+            .json(new ApiResponse(200,userData,'Logged in Successfully'));
 });
 
 const logout = catchAsync(async (req, res, next) => {
         res.clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'lax',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
         });
 
-        return res.status(200).json({
-            success: true,
-            message: 'Logged out successfully'
-        });
+        return res.status(200).json(new ApiResponse(200,{},'Logged out successfully'));
+
+        
 });
 
-const getMe = catchAsync(async (req,res) => {
+const getMe = catchAsync(async (req, res, next) => {
         if(!req.user){
             return next(new AppError('Not authorized',401));
         }
 
-        res.status(200).json({
-            user: req.user
-        });
+        res.status(200).json(new ApiResponse(200,{
+            id: req.user._id,
+            name: req.user.name,
+            email: req.user.email,
+            role: req.user.role
+        },'User is loggedin'));
 });
 
 module.exports = {register, login, logout, getMe};

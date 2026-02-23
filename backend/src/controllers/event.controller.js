@@ -1,4 +1,5 @@
 const Event = require('../models/Event.model');
+const ApiResponse = require('../utils/ApiResponse');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -18,19 +19,20 @@ const createEvent = catchAsync(async (req, res, next) => {
             time,
             venue,
             capacity,
-            isPublished,
+            isPublished: isPublished || false,
             createdBy: req.user._id,
             collegeId: req.user.collegeId
         });
 
-        res.status(201).json({
-            message:'Event created successfully',
-            event
-        });
+        res.status(201).json(new ApiResponse(201,event,'Event created successfully'));
 });
 
 const getEvents = catchAsync(async (req, res, next) => {
         const {past} = req.query;
+
+        if (!req.user) {
+        return next(new AppError('Please login to view events for your college', 401));
+        }
 
         const query = {
             isPublished: true
@@ -49,9 +51,10 @@ const getEvents = catchAsync(async (req, res, next) => {
             query.date = {$gte: today};
         }
 
-        const events = await Event.find(query).sort({date:1});
+        const sortOrder = past === 'true' ? -1 : 1;
+        const events = await Event.find(query).sort({date: sortOrder});
 
-        res.json(events);
+        res.status(200).json(new ApiResponse(200,events,'Event fetched successfully'));
 });
 
 module.exports = {createEvent,getEvents};

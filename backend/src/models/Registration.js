@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const registerationSchema = new mongoose.Schema(
+const registrationSchema = new mongoose.Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -17,7 +17,7 @@ const registerationSchema = new mongoose.Schema(
     {timestamps: true}
 );
 
-//enforce one registeration per user per event
-registerationSchema.index({userId: 1, eventId: 1}, {unique: true});
+//enforce one registration per user per event
+registrationSchema.index({userId: 1, eventId: 1}, {unique: true});
 
-module.exports = mongoose.model("Registeration",registerationSchema);
+module.exports = mongoose.model("Registration",registrationSchema);

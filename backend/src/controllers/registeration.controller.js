@@ -1,7 +1,8 @@
-const Registeration = require('../models/Registeration');
+const Registration = require('../models/Registration');
 const Event = require('../models/Event.model.js');
 const catchAsync = require('../utils/catchAsync.js');
 const AppError = require('../utils/AppError.js');
+const ApiResponse = require('../utils/ApiResponse.js');
 
 const registerForEvent = catchAsync(async (req, res, next) => {
         const eventId = req.params.id;
@@ -15,7 +16,7 @@ const registerForEvent = catchAsync(async (req, res, next) => {
 
         //2. Must be Published
         if(!event.isPublished) {
-            return next(new AppError('Event is not open for registeration',403));
+            return next(new AppError('Event is not open for registration',403));
         }
 
         //3. Must be upcoming
@@ -30,49 +31,48 @@ const registerForEvent = catchAsync(async (req, res, next) => {
         }
 
         //5. Capacity check
-        const registerationCount = await Registeration.countDocuments({eventId : event._id});
-        if(registerationCount >= event.capacity) {
+        const registrationCount = await Registration.countDocuments({eventId : event._id});
+        if(registrationCount >= event.capacity) {
             return next(new AppError('Event is full',400));
         }
 
-        //6. Create registeration (unique index enforces one-time)
-        const registeration = await Registeration.create({
+        //6. Create registration (unique index enforces one-time)
+        const registration = await Registration.create({
             userId,
             eventId
         });
 
         //7. Respond (controlled data)
-        res.status(201).json({
-            message: 'Registered successfully',
+        res.status(201).json(new ApiResponse(201,{
             event: {
                 id: event._id,
                 title: event.title,
                 date: event.date,
                 venue: event.venue
             },
-            registerationId: registeration._id
-        });
+            registrationId: registration._id
+        },'Registered successfully'));
 });
 
-const getMyRegisteration = catchAsync(async (req, res, next) => {
-        const registerations = await Registeration.find({
+const getMyRegistration = catchAsync(async (req, res, next) => {
+        const registrations = await Registration.find({
             userId: req.user._id,
         })
         .populate('eventId','title date time venue')
         .sort({ createdAt: -1 });
 
-        const events = registerations
+        const events = registrations
         .filter(reg => reg.eventId !== null)
         .map((reg) => ({
-            registerationId : reg._id,
+            registrationId : reg._id,
             event: reg.eventId,
             registeredAt: reg.createdAt
         }));
 
-        res.status(200).json(events);
+        res.status(200).json(new ApiResponse(200,events,'Registration fetched Successfully'));
 });
 
-const getEventRegisteration = catchAsync(async (req, res, next) => {
+const getEventRegistration = catchAsync(async (req, res, next) => {
         const eventId = req.params.id;
 
         //1. Fetch event
@@ -86,12 +86,12 @@ const getEventRegisteration = catchAsync(async (req, res, next) => {
             return next(new AppError('Access denied',403));
         }
 
-        //3. Fetch registerations
-        const registerations = await Registeration.find({eventId})
+        //3. Fetch registrations
+        const registrations = await Registration.find({eventId})
         .populate('userId', 'name email')
         .sort({createdAt: -1});
 
-        res.json({
+        res.status(200).json(new ApiResponse(200,{
             event: {
                 id: event._id,
                 title: event.title,
@@ -99,15 +99,15 @@ const getEventRegisteration = catchAsync(async (req, res, next) => {
                 venue: event.venue,
                 capacity: event.capacity
             },
-            totalRegisterations: registerations.length,
-            registerations: registerations.map((reg) => ({
+            totalRegistrations: registrations.length,
+            registrations: registrations.map((reg) => ({
                 user: reg.userId,
                 registeredAt: reg.createdAt
             }))
-        });
+        },'fetched registration successfully'));
 });
 
-const cancelRegisteration = catchAsync(async (req, res, next) => {
+const cancelRegistration = catchAsync(async (req, res, next) => {
         const eventId = req.params.id;
         const userId = req.user._id;
 
@@ -124,19 +124,19 @@ const cancelRegisteration = catchAsync(async (req, res, next) => {
         }
 
         //3. Find registration
-        const registeration = await Registeration.findOne({
+        const registration = await Registration.findOne({
             userId,
             eventId
         });
 
-        if(!registeration) {
-            return next(new AppError('Registeration not found',404));
+        if(!registration) {
+            return next(new AppError('Registration not found',404));
         }
 
-        //4. Delete registeration
-        await registeration.deleteOne();
+        //4. Delete registration
+        await registration.deleteOne();
 
-        res.json({message:'Registeration cancelled successfully'});
+        res.status(200).json(new ApiResponse(200,{},'Registration cancelled successfully'));
 });
 
-module.exports = { registerForEvent, getMyRegisteration, getEventRegisteration, cancelRegisteration};
+module.exports = { registerForEvent, getMyRegistration, getEventRegistration, cancelRegistration};
