@@ -54,7 +54,7 @@ const getEvents = catchAsync(async (req, res, next) => {
         const sortOrder = past === 'true' ? -1 : 1;
         const events = await Event.find(query).sort({date: sortOrder});
 
-        res.status(200).json(new ApiResponse(200,events,'Event fetched successfully'));
+        res.status(200).json(new ApiResponse(200,{events},'Event fetched successfully'));
 });
 
 module.exports = {createEvent,getEvents};
