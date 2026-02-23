@@ -10,10 +10,10 @@ app.use(cookieParser());
 //routes
 const authRoutes = require('./routes/auth.routes');
 const eventRoutes = require('./routes/event.routes');
-const registerationRoutes = require('./routes/registeration.routes')
+const registrationRoutes = require('./routes/registration.routes')
 app.use('/auth',authRoutes);
 app.use('/events',eventRoutes);
-app.use('/',registerationRoutes);
+app.use('/',registrationRoutes);
 
 app.set("trust proxy", 1);
 

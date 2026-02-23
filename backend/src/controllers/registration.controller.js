@@ -1,4 +1,4 @@
-const Registration = require('../models/Registration');
+const Registration = require('../models/Registration.js');
 const Event = require('../models/Event.model.js');
 const catchAsync = require('../utils/catchAsync.js');
 const AppError = require('../utils/AppError.js');
