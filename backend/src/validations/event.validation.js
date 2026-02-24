@@ -14,4 +14,20 @@ const createEventSchema = z.object({
   }).strict() 
 });
 
-module.exports = {createEventSchema};
+const getEventSchema = z.object({
+  query: z.object({
+    //Transform string to number
+    page: z.string()
+      .optional()
+      .transform((val) => Math.max(1, parseInt(val) || 1)),
+
+    //Transform string limit and enforce a HARD CAP of 50
+    limit: z.string()
+      .optional()
+      .transform((val) => Math.min(50, Math.max(1,parseInt(val) || 10))),
+    
+    past: z.enum(['true','false']).optional()
+  }),
+});
+
+module.exports = {createEventSchema, getEventSchema};
