@@ -1,9 +1,11 @@
 const express = require('express');
+const helmet = require('helmet');
 const app = express();
 const cookieParser = require('cookie-parser');
 const {protect} = require('./middleware/auth')
 //middleware
 
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
