@@ -15,11 +15,7 @@ const createEvent = catchAsync(async (req, res, next) => {
 });
 
 const getEvents = catchAsync(async (req, res, next) => {
-        if (!req.user) {
-        return next(new AppError('Please login to view events for your college', 401));
-        }
-        
-        const {past,page,limit} = req.query;
+        const {past, page, limit, search} = req.query;
 
         //Pagination logic
         const skip = (page - 1) * limit;
@@ -28,6 +24,10 @@ const getEvents = catchAsync(async (req, res, next) => {
             isPublished: true,
             collegeId: req.user.collegeId
         };
+
+        if(search) {
+            query.title = { $regex: search, $options: 'i'};
+        }
 
         const today = new Date();
 

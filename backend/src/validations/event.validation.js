@@ -26,7 +26,8 @@ const getEventSchema = z.object({
       .optional()
       .transform((val) => Math.min(50, Math.max(1,parseInt(val) || 10))),
     
-    past: z.enum(['true','false']).optional()
+    past: z.enum(['true','false']).optional(),
+    search: z.string().optional()
   }),
 });
 
