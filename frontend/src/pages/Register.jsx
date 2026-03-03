@@ -55,8 +55,15 @@ const Register = () => {
         setLoading(true);
 
         try {
-            // Note: Use /auth/register (added leading slash)
-            const response = await api.post('/auth/register', formData);
+            //1.register the user
+            await api.post('/auth/register', formData);
+
+            //2.Immediately login to get the cookie
+            const response = await api.post('/auth/login', {
+                email: formData.email,
+                password: formData.password
+            });
+
             login(response.data);
             navigate('/'); // Go to Home because they are now logged in
         } catch(err) {
