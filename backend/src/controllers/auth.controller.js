@@ -105,7 +105,8 @@ const getMe = catchAsync(async (req, res, next) => {
             id: req.user._id,
             name: req.user.name,
             email: req.user.email,
-            role: req.user.role
+            role: req.user.role,
+            collegeId: req.user.collegeId
         },'User is loggedin'));
 });
 

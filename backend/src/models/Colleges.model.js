@@ -5,9 +5,6 @@ const collegeSchema = new mongoose.Schema(
         name: {
             type: String,
             required: [true, "College name is required"],
-            unique: true, // Prevents duplicate entries for the same college
-            lowercase: true, // Extra layer of safety (matching your Zod normalization)
-            trim: true,
             index: true // Makes searching for events by college much faster
         }
     },
