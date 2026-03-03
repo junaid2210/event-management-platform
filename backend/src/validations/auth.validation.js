@@ -6,7 +6,7 @@ const registerSchema = z.object({
     email: z.string().trim().email("Invalid email format"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     role: z.enum(['student', 'organizer'], { message: "Role must be student or organizer" }),
-    collegeId: z.string().trim().min(1, "College ID is required")
+    collegeId: z.string().trim().toLowerCase().min(1, "College ID is required")
   })
 });
 

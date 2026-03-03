@@ -4,6 +4,7 @@ const generateToken = require('../utils/generatetokens');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const ApiResponse = require('../utils/ApiResponse');
+const College = require('../models/Colleges.model');
 
 const register = catchAsync(async (req, res, next) => {
         const {name, email, password, role, collegeId} = req.body;
@@ -18,6 +19,13 @@ const register = catchAsync(async (req, res, next) => {
         if(existingUser){
             return next(new AppError('User already exists', 409));
         }
+
+        //Handle college entry
+        await College.findOneAndUpdate(
+        { name: collegeId }, // Find by the normalized name
+        { name: collegeId }, // Ensure it stays that name
+        { upsert: true, new: true } // Create if not found
+        );
 
         //3. Hash password
         const passwordHash = await bcrypt.hash(password,10);
