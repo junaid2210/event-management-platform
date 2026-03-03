@@ -47,7 +47,9 @@ const Login = () => {
                             className="w-10 h-10 object-contain rounded-lg" 
                         />
                     </span>
-                    EventSphere
+                    <span className="text-xl font-bold tracking-tight text-gray-900">
+                        Event<span className="text-blue-600">Sphere</span>
+                    </span>
                 </h1>
                 <h2 className="text-4xl font-bold text-gray-800 mb-2">Welcome Back</h2>
                 <p className="text-gray-500">Enter your email and password to access your account.</p>
