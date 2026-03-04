@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const EventCard = ({ event }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group">
@@ -26,9 +28,9 @@ const EventCard = ({ event }) => {
             <p className="font-semibold text-gray-700">{new Date(event.date).toLocaleDateString()}</p>
             <p className="text-gray-400">{event.location}</p>
           </div>
-          <button className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-600 hover:text-white transition-colors">
+          <Link to = {`/event/${event._id}`} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors" >
             View Details
-          </button>
+          </Link>
         </div>
       </div>
     </div>

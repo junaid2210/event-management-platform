@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import GuestRoute from './components/GuestRoute';
 import Home from './pages/Home';
 import Landing from './pages/Landing';
+import EventDetails from './pages/EventDetails';
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 
@@ -28,6 +29,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={user ? <Home /> : <Landing />} />
+          <Route path="/event/:id" element={ <EventDetails/> } />
           <Route path="/login" element={
             <GuestRoute>
               <Login />
