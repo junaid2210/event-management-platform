@@ -2,6 +2,7 @@ const Event = require('../models/Event.model');
 const ApiResponse = require('../utils/ApiResponse');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+const Registration = require('../models/Registration');
 
 const createEvent = catchAsync(async (req, res, next) => {
         //Create event
@@ -80,9 +81,27 @@ const getEventById = catchAsync(async (req, res, next) => {
          );
     }
 
+    let isUserRegistered = false;
+
+    if(req.user) {
+        const existingUser = await Registration.findOne({
+            eventId: event._id,
+            userId: req.user._id 
+        });
+
+        if(existingUser) {
+            isUserRegistered = true;
+        }
+    }
+
+    const eventData = {
+        ...event.toObject(),
+        isUserRegistered // Injects true or false
+    };
+
     // 4. Return the data using custom ApiResponse format
     res.status(200).json(
-        new ApiResponse(200, event, 'Event fetched successfully')
+        new ApiResponse(200, eventData, 'Event fetched successfully')
     );
 });
 
