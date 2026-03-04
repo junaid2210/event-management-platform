@@ -58,4 +58,32 @@ const getEvents = catchAsync(async (req, res, next) => {
         },'Event fetched successfully'));
 });
 
-module.exports = {createEvent,getEvents};
+const getEventById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+
+    // 1. Find the specific event by its ID
+    const event = await Event.findById(id)
+        .populate('createdBy', 'name email')
+        .select('-__v');
+
+    // 2. Error handling: If someone types a fake ID
+    if (!event) {
+        return res.status(404).json(
+            new ApiResponse(404, null, 'Event not found')
+        );
+    }
+
+    // 3. Making sure the event belongs to the user's college
+    if (event.collegeId.toString() !== req.user.collegeId.toString()) {
+         return res.status(403).json(
+             new ApiResponse(403, null, 'You are not authorized to view events from other colleges')
+         );
+    }
+
+    // 4. Return the data using custom ApiResponse format
+    res.status(200).json(
+        new ApiResponse(200, event, 'Event fetched successfully')
+    );
+});
+
+module.exports = {createEvent,getEvents,getEventById};
