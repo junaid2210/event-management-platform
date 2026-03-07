@@ -1,13 +1,12 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
+import { eventService } from '../services/eventService'; // 👈 Import the service
 
 export const useEvent = (id) => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
 
-    // State
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -15,16 +14,17 @@ export const useEvent = (id) => {
     const [registerError, setRegisterError] = useState('');
     const [isRegistered, setIsRegistered] = useState(false);
 
-    // Fetch Event Logic
     useEffect(() => {
         if (!id) return;
         
         const fetchEvent = async () => {
             setLoading(true);
             try {
-                const response = await api.get(`/events/${id}`);
-                setEvent(response.data);
-                if (response.data.isUserRegistered) {
+                // 👈 Use the service!
+                const data = await eventService.getEventById(id);
+                
+                setEvent(data);
+                if (data.isUserRegistered) {
                     setIsRegistered(true);
                 }
             } catch (err) {
@@ -42,7 +42,6 @@ export const useEvent = (id) => {
         fetchEvent();
     }, [id]);
 
-    // Registration Logic
     const handleRegistration = async () => {
         if (!user) {
             navigate('/login');
@@ -53,7 +52,9 @@ export const useEvent = (id) => {
         setRegisterError('');
 
         try {
-            await api.post(`/events/${id}/register`);
+            // 👈 Use the service!
+            await eventService.registerForEvent(id);
+            
             setIsRegistered(true);
         } catch (err) {
             setRegisterError(err || 'Failed to register. Please try again');
@@ -62,13 +63,5 @@ export const useEvent = (id) => {
         }
     };
 
-    return { 
-        event, 
-        loading, 
-        error, 
-        isRegistering, 
-        registerError, 
-        isRegistered, 
-        handleRegistration 
-    };
+    return { event, loading, error, isRegistering, registerError, isRegistered, handleRegistration };
 };

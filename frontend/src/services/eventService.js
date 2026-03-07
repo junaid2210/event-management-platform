@@ -1,0 +1,18 @@
+import api from '../api/axios';
+
+export const eventService = {
+    getAllEvents: async (queryParams) => {
+        const response = await api.get('/events', { params: queryParams });
+        return response.data;
+    },
+    
+    getEventById: async (id) => {
+        const response = await api.get(`/events/${id}`);
+        return response.data;
+    },
+    
+    registerForEvent: async (id) => {
+        const response = await api.post(`/events/${id}/register`);
+        return response.data;
+    }
+};
