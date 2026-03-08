@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import api from "../api/axios";
+import { authService } from "../services/authService";
 
 export const AuthContext = createContext({});
 
@@ -9,23 +9,26 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const checkLoggedIn = async () => {
-            try{
-                const Response = await api.get('/auth/me');
-                setUser(Response.data);
-            } catch(err) {
+            try {
+                // Use the service!
+                const data = await authService.getMe();
+                setUser(data);
+            } catch (err) {
                 setUser(null);
             } finally {
                 setLoading(false);
             }
         };
         checkLoggedIn();
-    },[]);
+    }, []);
 
     const login = (userData) => setUser(userData);
-    const logout = async() => {
-        try{
-            await api.post('/auth/logout');
-        } catch(err){
+    
+    const logout = async () => {
+        try {
+            // Use the service!
+            await authService.logout();
+        } catch (err) {
             console.error('Logout Failed', err);
         } finally {
             setUser(null);
@@ -33,8 +36,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{user, setUser, login, logout, loading}}>
-            {!loading ? children : <div className="p-10">Loading session...</div>}
+        <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
+            {!loading ? children : <div className="p-10 flex justify-center items-center h-screen font-bold text-gray-500">Loading session...</div>}
         </AuthContext.Provider>
-    )
-}
+    );
+};

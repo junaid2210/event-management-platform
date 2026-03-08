@@ -1,43 +1,25 @@
-import { useState, useContext, useEffect } from 'react'; // Added useEffect
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import api from '../api/axios';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useRegister } from '../hooks/useRegister';
+import InputField from '../components/common/inputField'; // 👈 Import our reusable component!
 
 const Register = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
-        role: 'student', // Lowercase to match your Enum
+        role: 'student', 
         collegeId: ''
     });
-
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
     const [isOther, setIsOther] = useState(false);
-    const [existingColleges, setExistingColleges] = useState([]); // Defined the missing state
 
-    const { login } = useContext(AuthContext);
-    const navigate = useNavigate();
-
-    // Fetch colleges on load
-    useEffect(() => {
-        const fetchColleges = async () => {
-            try {
-                const response = await api.get('/auth/colleges');
-                setExistingColleges(response.data || []);
-            } catch (err) {
-                console.error("Failed to load colleges");
-            }
-        };
-        fetchColleges();
-    }, []);
+    // 👈 Connect our custom hook
+    const { register, loading, error, existingColleges } = useRegister();
 
     const handleChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value});
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Fixed the function name to match your JSX usage
     const handleCollegeSelection = (e) => {
         const value = e.target.value;
         if (value === 'other') {
@@ -51,26 +33,7 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
-
-        try {
-            //1.register the user
-            await api.post('/auth/register', formData);
-
-            //2.Immediately login to get the cookie
-            const response = await api.post('/auth/login', {
-                email: formData.email,
-                password: formData.password
-            });
-
-            login(response.data);
-            navigate('/'); // Go to Home because they are now logged in
-        } catch(err) {
-            setError(err || "Registration failed. Please try again.");
-        } finally {
-            setLoading(false);
-        }
+        await register(formData);
     };
 
     return (
@@ -81,11 +44,7 @@ const Register = () => {
                     <div className="mb-10 text-left">
                         <h1 className="text-2xl font-bold text-gray-600 flex items-center gap-2 mb-12">
                             <span>
-                                <img 
-                                    src="image (1).png" 
-                                    alt="EventSphere Logo" 
-                                    className="w-10 h-10 object-contain rounded-lg" 
-                                />
+                                <img src="image (1).png" alt="EventSphere Logo" className="w-10 h-10 object-contain rounded-lg" />
                             </span>
                             <span className="text-xl font-bold tracking-tight text-gray-900">
                                 Event<span className="text-blue-600">Sphere</span>
@@ -101,31 +60,24 @@ const Register = () => {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="text-left">
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                required
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                                placeholder="Name"
-                                value={formData.name}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="text-left">
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">College Email</label>
-                            <input
-                                type="email"
-                                name="email"
-                                required
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                                placeholder="Email"
-                                value={formData.email}
-                                onChange={handleChange}
-                            />
-                        </div>
+                        
+                        {/* 👇 Look at how clean these inputs are now! */}
+                        <InputField 
+                            label="Full Name" 
+                            name="name" 
+                            placeholder="Name" 
+                            value={formData.name} 
+                            onChange={handleChange} 
+                        />
+                        
+                        <InputField 
+                            label="College Email" 
+                            name="email" 
+                            type="email" 
+                            placeholder="Email" 
+                            value={formData.email} 
+                            onChange={handleChange} 
+                        />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                             <div>
@@ -165,6 +117,7 @@ const Register = () => {
                                             className="w-full px-4 py-3 rounded-xl border border-blue-500 bg-blue-50 outline-none"
                                             value={formData.collegeId}
                                             onChange={handleChange}
+                                            required
                                         />
                                         <button type="button" onClick={() => setIsOther(false)} className="text-[10px] text-blue-600 underline">Back to list</button>
                                     </div>
@@ -172,64 +125,59 @@ const Register = () => {
                             </div>
                         </div>
 
-                        <div className="text-left">
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
-                            <input
-                                type="password"
-                                name="password"
-                                required
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                        </div>
+                        <InputField 
+                            label="Password" 
+                            name="password" 
+                            type="password" 
+                            placeholder="••••••••" 
+                            value={formData.password} 
+                            onChange={handleChange} 
+                        />
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all mt-4"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all mt-4 disabled:bg-blue-400"
                         >
                             {loading ? 'Registering...' : 'Sign Up'}
                         </button>
                     </form>
 
                     <p className="mt-8 text-center text-sm text-gray-600">
-                        Already have an account? <Link to="/login" className="text-blue-600 font-bold">Login</Link>
+                        Already have an account? <Link to="/login" className="text-blue-600 font-bold hover:underline">Login</Link>
                     </p>
                 </div>
 
-{/* RIGHT SIDE: The Visual Section */}
-        <div className="hidden lg:flex w-1/2 bg-blue-600 p-16 flex-col justify-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-          
-          <div className="relative z-10 text-white">
-            <h2 className="text-4xl font-bold mb-6 leading-tight">
-              A place where <br /> ideas become events.
-            </h2>
-            <p className="text-blue-100 text-lg mb-12">
-              Stay updated with workshops, hackathons, and cultural fests at your college.
-            </p>
-            
-            {/* Simple Graphic Mockup */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
-               <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-full bg-blue-400 border-2 border-white/30"></div>
-                  <div className="space-y-2">
-                    <div className="h-3 w-32 bg-white/40 rounded"></div>
-                    <div className="h-2 w-20 bg-white/20 rounded"></div>
-                  </div>
-               </div>
-               <div className="space-y-4">
-                  <div className="h-4 w-full bg-white/10 rounded"></div>
-                  <div className="h-4 w-5/6 bg-white/10 rounded"></div>
-                  <div className="h-4 w-4/6 bg-white/10 rounded"></div>
-               </div>
+                {/* RIGHT SIDE: The Visual Section */}
+                <div className="hidden lg:flex w-1/2 bg-blue-600 p-16 flex-col justify-center relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                    
+                    <div className="relative z-10 text-white">
+                        <h2 className="text-4xl font-bold mb-6 leading-tight">
+                            A place where <br /> ideas become events.
+                        </h2>
+                        <p className="text-blue-100 text-lg mb-12">
+                            Stay updated with workshops, hackathons, and cultural fests at your college.
+                        </p>
+                        
+                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-12 h-12 rounded-full bg-blue-400 border-2 border-white/30"></div>
+                                <div className="space-y-2">
+                                    <div className="h-3 w-32 bg-white/40 rounded"></div>
+                                    <div className="h-2 w-20 bg-white/20 rounded"></div>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="h-4 w-full bg-white/10 rounded"></div>
+                                <div className="h-4 w-5/6 bg-white/10 rounded"></div>
+                                <div className="h-4 w-4/6 bg-white/10 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div> 
+        </div> 
     );
 };
 
