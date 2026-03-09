@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useEvents } from "../hooks/useEvents";
 import { useSearchParams } from "react-router-dom";
+import { useRedirectMessage } from "../hooks/useRedirectMessage";
 
 // Import our new UI components
 import HomeHero from "../components/home/HomeHero";
@@ -12,6 +13,8 @@ import PastEventsToggle from "../components/home/PastEventToggle";
 
 const Home = () => {
     const { user } = useContext(AuthContext);
+
+    const { message: authMessage, setMessage: setAuthMessage } = useRedirectMessage();
 
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search');
@@ -36,7 +39,17 @@ return (
             <HomeHero collegeId={user?.collegeId} />
 
             <div className="max-w-7xl mx-auto px-6 py-12">
-                
+                {/* 👈 4. DISPLAY THE ERROR ALERT HERE */}
+                {authMessage && (
+                    <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl shadow-sm flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <span className="text-red-500 font-bold text-lg">⚠️</span>
+                            <p className="text-red-700 font-medium">{authMessage}</p>
+                        </div>
+                        <button onClick={() => setAuthMessage(null)} className="text-red-400 hover:text-red-600 font-bold">✕</button>
+                    </div>
+                )}
+
                 {/* Header Row - FIXED FLEXBOX */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     

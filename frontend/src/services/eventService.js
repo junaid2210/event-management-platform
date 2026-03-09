@@ -14,5 +14,10 @@ export const eventService = {
     registerForEvent: async (id) => {
         const response = await api.post(`/events/${id}/register`);
         return response.data;
-    }
+    },
+
+    createEvent: async (eventData) => {
+        const response = await api.post('/events', eventData);
+        return response.data;
+    },
 };

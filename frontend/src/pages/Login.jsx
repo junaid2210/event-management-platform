@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLogin } from "../hooks/useLogin";
-import InputField from "../components/common/inputField";
+import { useRedirectMessage } from "../hooks/useRedirectMessage";
+import InputField from "../components/common/InputField";
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     
     // 👈 Look at this! Pure, clean separation of concerns.
     const { login, loading, error } = useLogin(); 
+    const { message: authMessage, setMessage: setAuthMessage } = useRedirectMessage();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,6 +26,16 @@ const Login = () => {
                 
                 {/* LEFT SIDE: The Form */}
                 <div className="w-full lg:w-1/2 p-8 lg:p-16 flex flex-col justify-center">
+                    {/* 2. Display the redirect alert if someone was kicked here */}
+                    {authMessage && (
+                        <div className="mb-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl shadow-sm flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <span className="text-red-500 font-bold text-lg">⚠️</span>
+                                <p className="text-red-700 font-medium">{authMessage}</p>
+                            </div>
+                            <button onClick={() => setAuthMessage(null)} className="text-red-400 hover:text-red-600 font-bold">✕</button>
+                        </div>
+                    )}
                     <div className="mb-8">
                         <h1 className="text-2xl font-bold text-blue-600 flex items-center gap-2 mb-12">
                             <span>

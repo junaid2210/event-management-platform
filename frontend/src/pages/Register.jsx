@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRegister } from '../hooks/useRegister';
-import InputField from '../components/common/inputField'; // 👈 Import our reusable component!
+import InputField from '../components/common/InputField'; // 👈 Import our reusable component!
 
 const Register = () => {
     const [formData, setFormData] = useState({

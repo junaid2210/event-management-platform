@@ -9,6 +9,8 @@ import Landing from './pages/Landing';
 import EventDetails from './pages/EventDetails';
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
+import CreateEvent from './pages/CreateEvent';
+import ProtectedRoute from './components/common/ProtectedRoutes';
 
 
 function App() {
@@ -29,16 +31,25 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={user ? <Home /> : <Landing />} />
-          <Route path="/event/:id" element={ <EventDetails/> } />
+          <Route path="/event/:id" element={
+                <ProtectedRoute>
+                    <EventDetails />
+                </ProtectedRoute>
+            } />
+          <Route path="/create-event" element={
+                <ProtectedRoute allowedRoles={['organizer']}>
+                  <CreateEvent />
+                </ProtectedRoute>
+            } />
           <Route path="/login" element={
-            <GuestRoute>
-              <Login />
-            </GuestRoute>
+                <GuestRoute>
+                  <Login />
+                </GuestRoute>
             } />
           <Route path="/register" element={
-            <GuestRoute>
-              <Register />
-            </GuestRoute>
+                <GuestRoute>
+                  <Register />
+                </GuestRoute>
             } />
         </Routes>
       </main>
