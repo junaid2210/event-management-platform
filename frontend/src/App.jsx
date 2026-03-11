@@ -11,6 +11,7 @@ import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 import CreateEvent from './pages/CreateEvent';
 import ProtectedRoute from './components/common/ProtectedRoutes';
+import NotFound from './pages/NotFound';
 
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
                   <Register />
                 </GuestRoute>
             } />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </div>

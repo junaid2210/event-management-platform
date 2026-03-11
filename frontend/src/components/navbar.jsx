@@ -64,25 +64,44 @@ const Navbar = () => {
                             </Link>
                         )}
 
-                        {/* USER PROFILE INFO */}
-                        <div className="flex items-center gap-3 pl-0 sm:pl-4 sm:border-l border-gray-100">
-                            <div className="hidden sm:flex flex-col items-end">
-                                <span className="text-sm font-bold text-gray-800 leading-none">
-                                    {user?.name}
-                                </span>
-                                <span className="text-[10px] font-medium text-blue-500 uppercase tracking-wider mt-1">
-                                    {user?.collegeId || 'Campus Member'}
-                                </span>
-                            </div>
+                        {/* USER AUTHENTICATION / PROFILE INFO */}
+                        {user ? (
+                            /* LOGGED IN VIEW */
+                            <div className="flex items-center gap-3 pl-0 sm:pl-4 sm:border-l border-gray-100">
+                                <div className="hidden sm:flex flex-col items-end">
+                                    <span className="text-sm font-bold text-gray-800 leading-none">
+                                        {user.name}
+                                    </span>
+                                    <span className="text-[10px] font-medium text-blue-500 uppercase tracking-wider mt-1">
+                                        {user.collegeId || 'Campus Member'}
+                                    </span>
+                                </div>
 
-                            <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                <User size={20} />
-                            </div>
+                                <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                    <User size={20} />
+                                </div>
 
-                            <button onClick={handleLogout} className="hidden sm:block ml-2 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Logout">
-                                <LogOut size={20} />
-                            </button>
-                        </div>
+                                <button onClick={handleLogout} className="hidden sm:block ml-2 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Logout">
+                                    <LogOut size={20} />
+                                </button>
+                            </div>
+                        ) : (
+                            /* LOGGED OUT VIEW */
+                            <div className="flex items-center gap-4 pl-0 sm:pl-4 sm:border-l border-gray-100">
+                                <Link 
+                                    to="/login" 
+                                    className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors"
+                                >
+                                    Login
+                                </Link>
+                                <Link 
+                                    to="/register" 
+                                    className="px-5 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-md shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 transition-all"
+                                >
+                                    Sign Up
+                                </Link>
+                            </div>
+                        )}
 
                         {/* MOBILE MENU BUTTON */}
                         <button 
