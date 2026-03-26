@@ -105,4 +105,13 @@ const getEventById = catchAsync(async (req, res, next) => {
     );
 });
 
-module.exports = {createEvent,getEvents,getEventById};
+const getOrganizerEvents = catchAsync( async (req, res) => {
+    const events = await Event.find({ createdBy: req.user._id})
+        .sort({createdAt: -1});
+
+    return res.status(200).json(
+        new ApiResponse(200, events, 'Organizer events fetched successfully')
+    );
+});
+
+module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents};
