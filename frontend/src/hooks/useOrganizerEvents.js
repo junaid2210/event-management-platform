@@ -11,7 +11,7 @@ export const useOrganizerEvents = () => {
             try {
                 setLoading(true);
                 const response = await eventService.getOrganizerEvents();
-                setEvents(response.data || []);
+                setEvents(response || []);
             } catch (err) {
                 setError(err || 'Failed to fetch your dashboard data.');
             } finally {
@@ -22,5 +22,5 @@ export const useOrganizerEvents = () => {
         fetchMyEvents();
     }, []);
 
-    return { events, loading, error };
+    return { events, setEvents, loading, error };
 }

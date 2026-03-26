@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useOrganizerEvents } from '../hooks/useOrganizerEvents';
 import { Calendar, MapPin, Users, Edit, Trash2, ExternalLink, Plus } from 'lucide-react';
+import { eventService } from '../services/eventService';
 
 const Dashboard = () => {
-    const { events, loading, error } = useOrganizerEvents();
+    const { events, setEvents, loading, error } = useOrganizerEvents();
 
     const now = new Date();
     const totalEvents = events.length;
@@ -20,6 +21,18 @@ const Dashboard = () => {
     if(loading) {
         return <div className="min-h-screen flex justify-center items-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
     }
+
+    const handleDelete = async (eventId) => {
+        if (window.confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
+            try {
+                await eventService.deleteEvent(eventId);
+                // Instantly remove the deleted event from the UI
+                setEvents(events.filter(event => event._id !== eventId));
+            } catch (err) {
+                alert(err || "Failed to delete the event.");
+            }
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -136,8 +149,7 @@ const Dashboard = () => {
                                                         <Edit size={18} />
                                                     </button>
                                                     
-                                                    {/* Reverted back to a standard, non-functional dummy button for now */}
-                                                    <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Event">
+                                                    <button onClick={() => handleDelete(event._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Event">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>

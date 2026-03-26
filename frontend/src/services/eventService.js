@@ -23,6 +23,11 @@ export const eventService = {
 
     getOrganizerEvents: async () => {
         const response = await api.get('/events/organizer');
-        return response;
+        return response.data;
     },
+
+    deleteEvent: async (id) => {
+        const response = await api.delete(`/events/${id}`);
+        return response.data;
+    }
 };
