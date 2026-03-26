@@ -20,4 +20,9 @@ export const eventService = {
         const response = await api.post('/events', eventData);
         return response.data;
     },
+
+    getOrganizerEvents: async () => {
+        const response = await api.get('/events/organizer');
+        return response;
+    },
 };

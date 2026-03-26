@@ -12,6 +12,7 @@ import { AuthContext } from './context/AuthContext';
 import CreateEvent from './pages/CreateEvent';
 import ProtectedRoute from './components/common/ProtectedRoutes';
 import NotFound from './pages/NotFound';
+import Dashboard from './pages/Dashboard';
 
 
 function App() {
@@ -40,6 +41,11 @@ function App() {
           <Route path="/create-event" element={
                 <ProtectedRoute allowedRoles={['organizer']}>
                   <CreateEvent />
+                </ProtectedRoute>
+            } />
+          <Route path="/my-events" element={
+                <ProtectedRoute allowedRoles={['organizer']}>
+                  <Dashboard />
                 </ProtectedRoute>
             } />
           <Route path="/login" element={
