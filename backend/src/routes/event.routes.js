@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validate');
 
-const {createEvent, getEvents, getEventById, getOrganizerEvents} = require('../controllers/event.controller');
+const {createEvent, getEvents, getEventById, getOrganizerEvents, deleteEvent} = require('../controllers/event.controller');
 const {protect} = require('../middleware/auth');
 const {isOrganizer} = require('../middleware/role');
 const {getEventRegistration} = require('../controllers/registration.controller.js');
@@ -18,6 +18,9 @@ router.get('/organizer', protect, isOrganizer, getOrganizerEvents);
 
 //get details of a single event
 router.get('/:id', protect, getEventById)
+
+//delete event
+router.delete('/:id', protect, isOrganizer, deleteEvent);
 
 //organizer view registrations
 router.get('/:id/registration', protect, isOrganizer, getEventRegistration);

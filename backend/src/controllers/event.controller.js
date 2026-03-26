@@ -105,7 +105,7 @@ const getEventById = catchAsync(async (req, res, next) => {
     );
 });
 
-const getOrganizerEvents = catchAsync( async (req, res) => {
+const getOrganizerEvents = catchAsync(async (req, res) => {
     const events = await Event.find({ createdBy: req.user._id})
         .sort({createdAt: -1});
 
@@ -114,4 +114,26 @@ const getOrganizerEvents = catchAsync( async (req, res) => {
     );
 });
 
-module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents};
+const deleteEvent = catchAsync(async (req, res) => {
+    const event = await Event.findById(req.params.id);
+
+    if(!event) {
+        return res.status(404).json(
+            new ApiResponse(404, null, 'Event not found')
+        );
+    }
+
+    if(event.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json(
+            new ApiResponse(403, null, 'You are not authorized to delete this event.')
+        );
+    }
+
+    await event.deleteOne();
+
+    return res.status(200).json(
+        new ApiResponse(200, null, 'Event deleted successfully')
+    );
+})
+
+module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents, deleteEvent};
