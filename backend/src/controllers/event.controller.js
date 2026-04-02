@@ -166,4 +166,30 @@ const getEventAttendees = catchAsync( async (req, res) => {
     );
 })
 
-module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents, deleteEvent, getEventAttendees};
+const updateEvent = catchAsync( async (req, res) => {
+    //1. Find the event
+    let event = await Event.findById(req.params.id);
+
+    if (!event) {
+        return res.status(404).json(new ApiResponse(404, null, 'Event not found'));
+    }
+
+    //2. Ensure the logged-in organizer actually owns this event
+    if (event.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json(new ApiResponse(403, null, 'You are not authorized to edit this event.'))
+    }
+
+    //3. Update the event with the new data from req.body
+    event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+    });
+
+    //4. Return success response
+    return res.status(200).json(
+        new ApiResponse(200, event, 'Event updated successfully')
+    );
+
+});
+
+module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents, deleteEvent, getEventAttendees, updateEvent};
