@@ -1,38 +1,37 @@
 import { Link } from 'react-router-dom';
 import { useOrganizerEvents } from '../hooks/useOrganizerEvents';
+import { eventService } from '../services/eventService'; 
 import { Calendar, MapPin, Users, Edit, Trash2, ExternalLink, Plus } from 'lucide-react';
-import { eventService } from '../services/eventService';
 
 const Dashboard = () => {
+    // Note: We only need events, setEvents, loading, and error now. 
+    // The modal states can be removed from your hook if you want to clean it up.
     const { events, setEvents, loading, error } = useOrganizerEvents();
-
     const now = new Date();
     const totalEvents = events.length;
     
-    // Drafts: Anything that isn't published yet
     const drafts = events.filter(e => !e.isPublished).length;
-    
-    // Upcoming: Published AND the date hasn't happened yet
     const upcomingEvents = events.filter(e => e.isPublished && new Date(e.date) >= now).length;
-    
-    // Past: Published AND the date has already passed
     const pastEvents = events.filter(e => e.isPublished && new Date(e.date) < now).length;
-
-    if(loading) {
-        return <div className="min-h-screen flex justify-center items-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
-    }
 
     const handleDelete = async (eventId) => {
         if (window.confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
             try {
                 await eventService.deleteEvent(eventId);
-                // Instantly remove the deleted event from the UI
                 setEvents(events.filter(event => event._id !== eventId));
             } catch (err) {
                 alert(err || "Failed to delete the event.");
             }
         }
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex justify-center items-center bg-gray-50">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -41,7 +40,7 @@ const Dashboard = () => {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Organizer Dashboard</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Organizer Dashboard</h1>
                         <p className="text-gray-500 mt-1">Manage your events, track attendance, and update details.</p>
                     </div>
                     <Link to="/create-event" className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
@@ -53,19 +52,19 @@ const Dashboard = () => {
                 {/* Stats Row */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <p className="text-gray-500 text-sm font-semibold mb-1">Total Events</p>
+                        <p className="text-gray-500 text-sm font-semibold mb-1 uppercase tracking-wider">Total Events</p>
                         <p className="text-3xl font-bold text-gray-900">{totalEvents}</p>
                     </div>
                     <div className="bg-white p-6 rounded-2xl border border-green-100 shadow-sm bg-green-50/30">
-                        <p className="text-green-600 text-sm font-semibold mb-1">Upcoming</p>
+                        <p className="text-green-600 text-sm font-semibold mb-1 uppercase tracking-wider">Upcoming</p>
                         <p className="text-3xl font-bold text-green-700">{upcomingEvents}</p>
                     </div>
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <p className="text-gray-500 text-sm font-semibold mb-1">Past Events</p>
+                        <p className="text-gray-500 text-sm font-semibold mb-1 uppercase tracking-wider">Past Events</p>
                         <p className="text-3xl font-bold text-gray-700">{pastEvents}</p>
                     </div>
                     <div className="bg-white p-6 rounded-2xl border border-yellow-100 shadow-sm bg-yellow-50/30">
-                        <p className="text-yellow-600 text-sm font-semibold mb-1">Drafts</p>
+                        <p className="text-yellow-600 text-sm font-semibold mb-1 uppercase tracking-wider">Drafts</p>
                         <p className="text-3xl font-bold text-yellow-700">{drafts}</p>
                     </div>
                 </div>
@@ -92,6 +91,7 @@ const Dashboard = () => {
                                     <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm">
                                         <th className="p-4 font-semibold">Event Details</th>
                                         <th className="p-4 font-semibold">Date & Venue</th>
+                                        <th className="p-4 font-semibold">Registrations</th>
                                         <th className="p-4 font-semibold">Status</th>
                                         <th className="p-4 font-semibold text-right">Actions</th>
                                     </tr>
@@ -112,44 +112,80 @@ const Dashboard = () => {
                                             }
                                         }
 
+                                        // 👈 Percentage calculation for progress bar
+                                        const regCount = event.registeredCount || 0;
+                                        const fillPercentage = Math.min((regCount / event.capacity) * 100, 100);
+
                                         return (
                                         <tr key={event._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                             
                                             <td className="p-4">
                                                 <p className="font-bold text-gray-900">{event.title}</p>
-                                                <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                                                    <Users size={14} />
-                                                    <span>Capacity: {event.capacity}</span>
-                                                </div>
+                                                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[200px]">{event.venue}</p>
                                             </td>
 
                                             <td className="p-4">
                                                 <div className="flex items-center gap-2 text-sm text-gray-700 mb-1">
                                                     <Calendar size={14} className="text-blue-500" />
-                                                    {new Date(event.date).toLocaleDateString()} at {event.time}
+                                                    {new Date(event.date).toLocaleDateString()}
                                                 </div>
                                                 <div className="flex items-center gap-2 text-sm text-gray-500">
                                                     <MapPin size={14} className="text-gray-400" />
-                                                    {event.venue}
+                                                    {event.time}
+                                                </div>
+                                            </td>
+
+                                            {/* 👈 Registration Progress Column */}
+                                            <td className="p-4 min-w-[160px]">
+                                                <div className="flex items-center justify-between text-sm mb-1.5">
+                                                    <span className="font-bold text-gray-900">{regCount}</span>
+                                                    <span className="text-gray-500 text-xs">/ {event.capacity} seats</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 rounded-full h-2">
+                                                    <div 
+                                                        className={`h-2 rounded-full transition-all duration-500 ${fillPercentage >= 100 ? 'bg-red-500' : 'bg-blue-600'}`} 
+                                                        style={{ width: `${fillPercentage}%` }}
+                                                    ></div>
                                                 </div>
                                             </td>
 
                                             <td className="p-4">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusStyle}`}>
+                                                <span className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-wider font-bold ${statusStyle}`}>
                                                     {statusText}
                                                 </span>
                                             </td>
 
                                             <td className="p-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <Link to={`/event/${event._id}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Public Page">
+                                                    {/* 👈 New link to dedicated attendees page */}
+                                                    <Link 
+                                                        to={`/dashboard/attendees/${event._id}`} 
+                                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                                        title="View Guest List"
+                                                    >
+                                                        <Users size={18} />
+                                                    </Link>
+
+                                                    <Link 
+                                                        to={`/event/${event._id}`} 
+                                                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
+                                                        title="View Public Page"
+                                                    >
                                                         <ExternalLink size={18} />
                                                     </Link>
-                                                    <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Edit Event">
+
+                                                    <button 
+                                                        className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors" 
+                                                        title="Edit Event"
+                                                    >
                                                         <Edit size={18} />
                                                     </button>
                                                     
-                                                    <button onClick={() => handleDelete(event._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Event">
+                                                    <button 
+                                                        onClick={() => handleDelete(event._id)} 
+                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                                                        title="Delete Event"
+                                                    >
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
@@ -163,7 +199,7 @@ const Dashboard = () => {
                 )}
             </div>
         </div>
-    )
+    );
 };
 
 export default Dashboard;

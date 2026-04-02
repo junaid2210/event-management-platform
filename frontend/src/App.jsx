@@ -13,6 +13,7 @@ import CreateEvent from './pages/CreateEvent';
 import ProtectedRoute from './components/common/ProtectedRoutes';
 import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
+import AttendeesList from './pages/AttendeesList';
 
 
 function App() {
@@ -46,6 +47,11 @@ function App() {
           <Route path="/my-events" element={
                 <ProtectedRoute allowedRoles={['organizer']}>
                   <Dashboard />
+                </ProtectedRoute>
+            } />
+          <Route path="/dashboard/attendees/:id" element={
+                <ProtectedRoute allowedRoles={['organizer']}>
+                    <AttendeesList />
                 </ProtectedRoute>
             } />
           <Route path="/login" element={

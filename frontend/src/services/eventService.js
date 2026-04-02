@@ -29,5 +29,10 @@ export const eventService = {
     deleteEvent: async (id) => {
         const response = await api.delete(`/events/${id}`);
         return response.data;
+    },
+
+    getEventAttendees: async (id) => {
+        const response = await api.get(`/events/${id}/attendees`);
+        return response.data;
     }
 };
