@@ -107,7 +107,14 @@ const getEventById = catchAsync(async (req, res, next) => {
 
 const getOrganizerEvents = catchAsync(async (req, res) => {
     const events = await Event.find({ createdBy: req.user._id})
-        .sort({createdAt: -1});
+        .sort({createdAt: -1})
+        .lean();
+
+    // Loop through and count registrations for each event
+    for (let event of events) {
+        const count = await Registration.countDocuments({ eventId: event._id });
+        event.registeredCount = count; // Attach the count to the object
+    }
 
     return res.status(200).json(
         new ApiResponse(200, events, 'Organizer events fetched successfully')
@@ -136,4 +143,27 @@ const deleteEvent = catchAsync(async (req, res) => {
     );
 })
 
-module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents, deleteEvent};
+const getEventAttendees = catchAsync( async (req, res) => {
+    //1. Verify the event exits and belongs to this organizer
+    const event = await Event.findById(req.params.id);
+
+    if(!event){
+        return res.status(404).json(new ApiResponse(404, null, 'Event not found'));
+    }
+
+    if(event.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json(new ApiResponse(403, null, "Not authorized to view this event's attendees"));
+    }
+
+    //2. Fetch the registrations and populate the student details
+
+    const attendees = await Registration.find({ eventId: req.params.id })
+        .populate('userId','name email collegeId');
+
+    //3. Return the data
+    return res.status(200).json(
+        new ApiResponse(200, attendees, 'Attendees fetched successfully')
+    );
+})
+
+module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents, deleteEvent, getEventAttendees};
