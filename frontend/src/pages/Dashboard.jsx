@@ -174,12 +174,13 @@ const Dashboard = () => {
                                                         <ExternalLink size={18} />
                                                     </Link>
 
-                                                    <button 
+                                                    <Link 
+                                                        to={`/edit-event/${event._id}`} 
                                                         className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors" 
                                                         title="Edit Event"
                                                     >
                                                         <Edit size={18} />
-                                                    </button>
+                                                    </Link>
                                                     
                                                     <button 
                                                         onClick={() => handleDelete(event._id)} 

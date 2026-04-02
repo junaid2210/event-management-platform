@@ -31,6 +31,11 @@ export const eventService = {
         return response.data;
     },
 
+    updateEvent: async (id, eventData) => {
+        const response = await api.put(`/events/${id}`, eventData);
+        return response.data;
+    },
+
     getEventAttendees: async (id) => {
         const response = await api.get(`/events/${id}/attendees`);
         return response.data;
