@@ -15,6 +15,8 @@ import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
 import AttendeesList from './pages/AttendeesList';
 import EditEvent from './pages/EditEvent';
+import MyTickets from './pages/MyTickets';
+import About from './pages/About';
 
 
 function App() {
@@ -35,6 +37,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={user ? <Home /> : <Landing />} />
+          <Route path="/about" element={<About />} />
           <Route path="/event/:id" element={
                 <ProtectedRoute>
                     <EventDetails />
@@ -48,6 +51,11 @@ function App() {
           <Route path="/my-events" element={
                 <ProtectedRoute allowedRoles={['organizer']}>
                   <Dashboard />
+                </ProtectedRoute>
+            } />
+          <Route path="/my-tickets" element={
+                <ProtectedRoute>
+                  <MyTickets />
                 </ProtectedRoute>
             } />
           <Route path="/dashboard/attendees/:id" element={

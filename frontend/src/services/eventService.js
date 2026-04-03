@@ -39,5 +39,10 @@ export const eventService = {
     getEventAttendees: async (id) => {
         const response = await api.get(`/events/${id}/attendees`);
         return response.data;
-    }
+    },
+
+    getMyTickets: async () => {
+        const response = await api.get('/events/my-tickets');
+        return response.data;
+    },
 };
