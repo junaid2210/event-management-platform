@@ -192,4 +192,14 @@ const updateEvent = catchAsync( async (req, res) => {
 
 });
 
-module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents, deleteEvent, getEventAttendees, updateEvent};
+const getMyTickets = catchAsync( async (req, res) => {
+    const tickets = await Registration.find({userId: req.user._id})
+        .populate('eventId', 'title date time venue')
+        .sort({ createdAt: -1 });
+
+    return res.status(200).json(
+        new ApiResponse(200, tickets, 'Tickets fetched successfully')
+    );
+});
+
+module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents, deleteEvent, getEventAttendees, updateEvent, getMyTickets};
