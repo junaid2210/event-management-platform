@@ -5,6 +5,8 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
+const dotenv = require('dotenv');
+dotenv.config();
 
 if(process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
@@ -24,7 +26,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/auth', limiter);
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.CLIENT_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-type', 'Authorization']
