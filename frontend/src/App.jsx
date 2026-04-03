@@ -17,6 +17,7 @@ import AttendeesList from './pages/AttendeesList';
 import EditEvent from './pages/EditEvent';
 import MyTickets from './pages/MyTickets';
 import About from './pages/About';
+import Footer from './components/Footer';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
   const isLandingPage = location.pathname === '/' && !user;
   
   const showNavbar = !isAuthPage && !isLandingPage;
+  const showFooter = !isAuthPage;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,6 +83,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      {showFooter && <Footer />}
     </div>
   );
 }
