@@ -18,6 +18,7 @@ import EditEvent from './pages/EditEvent';
 import MyTickets from './pages/MyTickets';
 import About from './pages/About';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollTotTop';
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ScrollToTop />
       {showNavbar && <Navbar/>}
       <main>
         <Routes>

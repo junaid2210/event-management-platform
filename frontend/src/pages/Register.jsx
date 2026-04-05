@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRegister } from '../hooks/useRegister';
-import InputField from '../components/common/InputField'; // 👈 Import our reusable component!
+import InputField from '../components/common/InputField'; 
+import { GraduationCap, Presentation } from 'lucide-react'; // 👈 Import icons!
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -13,7 +14,6 @@ const Register = () => {
     });
     const [isOther, setIsOther] = useState(false);
 
-    // 👈 Connect our custom hook
     const { register, loading, error, existingColleges } = useRegister();
 
     const handleChange = (e) => {
@@ -59,70 +59,100 @@ const Register = () => {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         
-                        {/* 👇 Look at how clean these inputs are now! */}
-                        <InputField 
-                            label="Full Name" 
-                            name="name" 
-                            placeholder="Name" 
-                            value={formData.name} 
-                            onChange={handleChange} 
-                        />
-                        
-                        <InputField 
-                            label="College Email" 
-                            name="email" 
-                            type="email" 
-                            placeholder="Email" 
-                            value={formData.email} 
-                            onChange={handleChange} 
-                        />
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">I am a...</label>
-                                <select
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none"
+                        {/* 👇 THE NEW ROLE SELECTION CARDS */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2 text-left">I am joining as a...</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Student Card */}
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, role: 'student' })}
+                                    className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-200 outline-none ${
+                                        formData.role === 'student'
+                                            ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md shadow-blue-100'
+                                            : 'border-gray-100 bg-gray-50 text-gray-500 hover:border-blue-200'
+                                    }`}
                                 >
-                                    <option value="student">Student</option>
-                                    <option value="organizer">Organizer</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">College Name</label>
-                                {!isOther ? (
-                                    <select
-                                        onChange={handleCollegeSelection}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">-- Select --</option>
-                                        {existingColleges.map((col) => (
-                                            <option key={col._id} value={col.name}>
-                                                {col.name.toUpperCase()}
-                                            </option>
-                                        ))}
-                                        <option value="other" className="text-blue-600 font-bold">+ Add New College</option>
-                                    </select>
-                                ) : (
-                                    <div className="space-y-1">
-                                        <input
-                                            type="text"
-                                            name="collegeId"
-                                            placeholder="Enter College Name"
-                                            className="w-full px-4 py-3 rounded-xl border border-blue-500 bg-blue-50 outline-none"
-                                            value={formData.collegeId}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                        <button type="button" onClick={() => setIsOther(false)} className="text-[10px] text-blue-600 underline">Back to list</button>
+                                    <div className={`p-2 rounded-xl ${formData.role === 'student' ? 'bg-blue-600 text-white' : 'bg-white text-gray-400 shadow-sm'}`}>
+                                        <GraduationCap size={20} />
                                     </div>
-                                )}
+                                    <div className="text-left">
+                                        <p className={`font-bold ${formData.role === 'student' ? 'text-blue-700' : 'text-gray-700'}`}>Student</p>
+                                        <p className="text-[10px] text-gray-500 font-medium">Attend events</p>
+                                    </div>
+                                </button>
+
+                                {/* Organizer Card */}
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, role: 'organizer' })}
+                                    className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-200 outline-none ${
+                                        formData.role === 'organizer'
+                                            ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md shadow-blue-100'
+                                            : 'border-gray-100 bg-gray-50 text-gray-500 hover:border-blue-200'
+                                    }`}
+                                >
+                                    <div className={`p-2 rounded-xl ${formData.role === 'organizer' ? 'bg-blue-600 text-white' : 'bg-white text-gray-400 shadow-sm'}`}>
+                                        <Presentation size={20} />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className={`font-bold ${formData.role === 'organizer' ? 'text-blue-700' : 'text-gray-700'}`}>Organizer</p>
+                                        <p className="text-[10px] text-gray-500 font-medium">Host events</p>
+                                    </div>
+                                </button>
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <InputField 
+                                label="Full Name" 
+                                name="name" 
+                                placeholder="Name" 
+                                value={formData.name} 
+                                onChange={handleChange} 
+                            />
+                            
+                            <InputField 
+                                label="College Email" 
+                                name="email" 
+                                type="email" 
+                                placeholder="Email" 
+                                value={formData.email} 
+                                onChange={handleChange} 
+                            />
+                        </div>
+
+                        <div className="text-left">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">College Name</label>
+                            {!isOther ? (
+                                <select
+                                    onChange={handleCollegeSelection}
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                >
+                                    <option value="">-- Select your College --</option>
+                                    {existingColleges.map((col) => (
+                                        <option key={col._id} value={col.name}>
+                                            {col.name.toUpperCase()}
+                                        </option>
+                                    ))}
+                                    <option value="other" className="text-blue-600 font-bold">+ Add New College</option>
+                                </select>
+                            ) : (
+                                <div className="space-y-1">
+                                    <input
+                                        type="text"
+                                        name="collegeId"
+                                        placeholder="Enter College Name manually"
+                                        className="w-full px-4 py-3 rounded-xl border border-blue-500 bg-blue-50 outline-none transition-all"
+                                        value={formData.collegeId}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                    <button type="button" onClick={() => setIsOther(false)} className="text-[11px] font-semibold text-blue-600 hover:underline">← Back to list</button>
+                                </div>
+                            )}
                         </div>
 
                         <InputField 
@@ -137,32 +167,35 @@ const Register = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all mt-4 disabled:bg-blue-400"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all mt-6 disabled:bg-blue-400"
                         >
-                            {loading ? 'Registering...' : 'Sign Up'}
+                            {loading ? 'Creating Account...' : 'Sign Up'}
                         </button>
                     </form>
 
-                    <p className="mt-8 text-center text-sm text-gray-600">
-                        Already have an account? <Link to="/login" className="text-blue-600 font-bold hover:underline">Login</Link>
+                    <p className="mt-8 text-center text-sm text-gray-600 font-medium">
+                        Already have an account? <Link to="/login" className="text-blue-600 font-bold hover:text-blue-700">Login here</Link>
                     </p>
                 </div>
 
                 {/* RIGHT SIDE: The Visual Section */}
                 <div className="hidden lg:flex w-1/2 bg-blue-600 p-16 flex-col justify-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-400/20 rounded-full -ml-10 -mb-10 blur-2xl"></div>
                     
                     <div className="relative z-10 text-white">
                         <h2 className="text-4xl font-bold mb-6 leading-tight">
                             A place where <br /> ideas become events.
                         </h2>
-                        <p className="text-blue-100 text-lg mb-12">
-                            Stay updated with workshops, hackathons, and cultural fests at your college.
+                        <p className="text-blue-100 text-lg mb-12 max-w-md">
+                            Stay updated with workshops, hackathons, and cultural fests happening right at your campus.
                         </p>
                         
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl transform hover:-translate-y-2 transition-transform duration-500">
                             <div className="flex items-center gap-4 mb-6">
-                                <div className="w-12 h-12 rounded-full bg-blue-400 border-2 border-white/30"></div>
+                                <div className="w-12 h-12 rounded-full bg-blue-400/50 border-2 border-white/30 flex items-center justify-center">
+                                    <div className="w-6 h-6 bg-white rounded-full opacity-50"></div>
+                                </div>
                                 <div className="space-y-2">
                                     <div className="h-3 w-32 bg-white/40 rounded"></div>
                                     <div className="h-2 w-20 bg-white/20 rounded"></div>
