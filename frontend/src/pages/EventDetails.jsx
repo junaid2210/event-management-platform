@@ -3,9 +3,9 @@ import { useEvent } from '../hooks/useEvent';
 import { ArrowLeft, User, MapPin } from 'lucide-react';
 
 // Import our new UI components
-import EventBanner from '../components/events/EventBanner';
-import EventHeader from '../components/events/EventHeader';
-import EventInfoGrid from '../components/events/EventInfoGrid';
+import EventBanner from '../components/Events/EventBanner';
+import EventHeader from '../components/Events/EventHeader';
+import EventInfoGrid from '../components/Events/EventInfoGrid';
 
 const EventDetails = () => {
     const { id } = useParams();
