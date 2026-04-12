@@ -5,9 +5,13 @@ const catchAsync = require('../utils/catchAsync');
 const Registration = require('../models/Registration');
 
 const createEvent = catchAsync(async (req, res, next) => {
+        
+        const imageUrl = req.file ? req.file.path : '';
+        
         //Create event
         const event = await Event.create({
             ...req.body,
+            image: imageUrl,
             createdBy: req.user._id,
             collegeId: req.user.collegeId
         });
@@ -167,6 +171,7 @@ const getEventAttendees = catchAsync( async (req, res) => {
 })
 
 const updateEvent = catchAsync( async (req, res) => {
+    
     //1. Find the event
     let event = await Event.findById(req.params.id);
 
@@ -179,8 +184,14 @@ const updateEvent = catchAsync( async (req, res) => {
         return res.status(403).json(new ApiResponse(403, null, 'You are not authorized to edit this event.'))
     }
 
+    const updatePayload = { ...req.body };
+
+    if (req.file) {
+        updatePayload.image = req.file.path; 
+    }
+
     //3. Update the event with the new data from req.body
-    event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+    event = await Event.findByIdAndUpdate(req.params.id, updatePayload, {
         new: true,
         runValidators: true
     });

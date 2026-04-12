@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validate');
+const upload = require('../config/cloudinary');
 
 const {createEvent, getEvents, getEventById, getOrganizerEvents, deleteEvent, getEventAttendees, updateEvent, getMyTickets} = require('../controllers/event.controller');
 const {protect} = require('../middleware/auth');
@@ -12,7 +13,7 @@ const {createEventSchema} = require('../validations/event.validation');
 router.get('/',protect, getEvents);
 
 //create event (organizer only)
-router.post('/',protect,isOrganizer, validate(createEventSchema), createEvent);
+router.post('/',protect,isOrganizer, upload.single('image'), validate(createEventSchema), createEvent);
 
 router.get('/organizer', protect, isOrganizer, getOrganizerEvents);
 
@@ -26,7 +27,7 @@ router.get('/:id', protect, getEventById)
 router.get('/:id/attendees', protect, isOrganizer, getEventAttendees);
 
 //update event route
-router.put('/:id', protect, isOrganizer, updateEvent);
+router.put('/:id', protect, isOrganizer, upload.single('image'), updateEvent);
 
 //delete event
 router.delete('/:id', protect, isOrganizer, deleteEvent);
