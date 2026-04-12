@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCreateEvent } from '../hooks/useCreateEvent';
 import InputField from '../components/common/InputField';
-import { Calendar, Clock, MapPin, Users } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Image as ImageIcon } from 'lucide-react';
 
 const CreateEvent = () => {
     const { createEvent, loading, error} = useCreateEvent();
@@ -16,6 +16,8 @@ const CreateEvent = () => {
         isPublished: true
     });
 
+    const [imageFile, setImageFile] = useState(null);
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -24,10 +26,36 @@ const CreateEvent = () => {
         });
     };
 
+    const handleImageChange = (e) => {
+        // 1. Prevent default behavior just in case
+        e.preventDefault(); 
+
+        // 2. Safety check: Does e.target and e.target.files exist?
+        if (e.target && e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            setImageFile(file);
+        } else {
+            console.log("Something triggered handleImageChange, but no files were found.", e);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        await createEvent(formData);
+        const submitData = new FormData();
+
+        Object.keys(formData).forEach(key => {
+            submitData.append(key, formData[key]);
+        });
+
+        // Append the image file if the user selected one
+        // The name 'image' MUST match upload.single('image') in your backend router
+        if (imageFile) {
+            submitData.append('image', imageFile); 
+        }
+
+        // Pass the FormData object to your custom hook instead of standard JSON
+        await createEvent(submitData);
     }
 
     return (
@@ -50,6 +78,33 @@ const CreateEvent = () => {
                                 {error}
                             </div>
                         )}
+
+                        {/* 👇 4. The Image Upload UI */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Event Banner Image</label>
+                            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-400 transition-colors bg-gray-50">
+                                <div className="space-y-1 text-center">
+                                    <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                                    <div className="flex text-sm text-gray-600 justify-center">
+                                        <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 px-2">
+                                            <span>Upload a file</span>
+                                            <input 
+                                                id="file-upload" 
+                                                name="file-upload" 
+                                                type="file" 
+                                                className="sr-only" 
+                                                accept="image/png, image/jpeg, image/webp"
+                                                onChange={handleImageChange}
+                                            />
+                                        </label>
+                                        <p className="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                        {imageFile ? <span className="font-bold text-green-600">{imageFile.name} selected</span> : "PNG, JPG, WEBP up to 5MB"}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
                         {/* Title */}
                         <InputField 
