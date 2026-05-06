@@ -40,7 +40,11 @@ const Landing = () => {
                         
                         {/* Fake Event Image with Gradient */}
                         <div className="h-48 w-full rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 mb-6 relative overflow-hidden">
-                            <div className="absolute inset-0 bg-black/10"></div>
+                            <img
+                                src="event.png"
+                                alt="Event"
+                                className="w-full h-full object-cover"
+                            />
                             {/* Tags */}
                             <div className="absolute bottom-4 left-4 flex gap-2">
                                 <span className="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 rounded-full text-white text-xs font-bold shadow-sm">Hackathon</span>
