@@ -39,7 +39,7 @@ const Register = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F3F4F6] p-4 lg:p-8">
             <div className="bg-white w-full max-w-6xl rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[700px]">
-                
+
                 <div className="w-full lg:w-1/2 p-8 lg:p-16 flex flex-col justify-center">
                     <div className="mb-10 text-left">
                         <h1 className="text-2xl font-bold text-gray-600 flex items-center gap-2 mb-12">
@@ -60,7 +60,7 @@ const Register = () => {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        
+
                         {/* 👇 THE NEW ROLE SELECTION CARDS */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2 text-left">I am joining as a...</label>
@@ -69,11 +69,10 @@ const Register = () => {
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, role: 'student' })}
-                                    className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-200 outline-none ${
-                                        formData.role === 'student'
+                                    className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-200 outline-none ${formData.role === 'student'
                                             ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md shadow-blue-100'
                                             : 'border-gray-100 bg-gray-50 text-gray-500 hover:border-blue-200'
-                                    }`}
+                                        }`}
                                 >
                                     <div className={`p-2 rounded-xl ${formData.role === 'student' ? 'bg-blue-600 text-white' : 'bg-white text-gray-400 shadow-sm'}`}>
                                         <GraduationCap size={20} />
@@ -88,11 +87,10 @@ const Register = () => {
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, role: 'organizer' })}
-                                    className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-200 outline-none ${
-                                        formData.role === 'organizer'
+                                    className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-200 outline-none ${formData.role === 'organizer'
                                             ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md shadow-blue-100'
                                             : 'border-gray-100 bg-gray-50 text-gray-500 hover:border-blue-200'
-                                    }`}
+                                        }`}
                                 >
                                     <div className={`p-2 rounded-xl ${formData.role === 'organizer' ? 'bg-blue-600 text-white' : 'bg-white text-gray-400 shadow-sm'}`}>
                                         <Presentation size={20} />
@@ -106,21 +104,21 @@ const Register = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <InputField 
-                                label="Full Name" 
-                                name="name" 
-                                placeholder="Name" 
-                                value={formData.name} 
-                                onChange={handleChange} 
+                            <InputField
+                                label="Full Name"
+                                name="name"
+                                placeholder="Name"
+                                value={formData.name}
+                                onChange={handleChange}
                             />
-                            
-                            <InputField 
-                                label="College Email" 
-                                name="email" 
-                                type="email" 
-                                placeholder="Email" 
-                                value={formData.email} 
-                                onChange={handleChange} 
+
+                            <InputField
+                                label="College Email"
+                                name="email"
+                                type="email"
+                                placeholder="Email"
+                                value={formData.email}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -155,13 +153,13 @@ const Register = () => {
                             )}
                         </div>
 
-                        <InputField 
-                            label="Password" 
-                            name="password" 
-                            type="password" 
-                            placeholder="••••••••" 
-                            value={formData.password} 
-                            onChange={handleChange} 
+                        <InputField
+                            label="Password"
+                            name="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={handleChange}
                         />
 
                         <button
@@ -182,7 +180,7 @@ const Register = () => {
                 <div className="hidden lg:flex w-1/2 bg-blue-600 p-16 flex-col justify-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                     <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-400/20 rounded-full -ml-10 -mb-10 blur-2xl"></div>
-                    
+
                     <div className="relative z-10 text-white">
                         <h2 className="text-4xl font-bold mb-6 leading-tight">
                             A place where <br /> ideas become events.
@@ -190,7 +188,7 @@ const Register = () => {
                         <p className="text-blue-100 text-lg mb-12 max-w-md">
                             Stay updated with workshops, hackathons, and cultural fests happening right at your campus.
                         </p>
-                        
+
                         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl transform hover:-translate-y-2 transition-transform duration-500">
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-12 h-12 rounded-full bg-blue-400/50 border-2 border-white/30 flex items-center justify-center">
@@ -210,7 +208,7 @@ const Register = () => {
                     </div>
                 </div>
             </div>
-        </div> 
+        </div>
     );
 };
 
