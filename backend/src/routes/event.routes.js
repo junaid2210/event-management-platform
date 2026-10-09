@@ -3,17 +3,16 @@ const router = express.Router();
 const validate = require('../middleware/validate');
 const upload = require('../config/cloudinary');
 
-const {createEvent, getEvents, getEventById, getOrganizerEvents, deleteEvent, getEventAttendees, updateEvent, getMyTickets} = require('../controllers/event.controller');
-const {protect} = require('../middleware/auth');
-const {isOrganizer} = require('../middleware/role');
-const {getEventRegistration} = require('../controllers/registration.controller.js');
-const {createEventSchema} = require('../validations/event.validation');
+const { createEvent, getEvents, getEventById, getOrganizerEvents, deleteEvent, getEventAttendees, updateEvent, getMyTickets } = require('../controllers/event.controller');
+const { protect } = require('../middleware/auth');
+const { isOrganizer } = require('../middleware/role');
+const { getEventRegistration } = require('../controllers/registration.controller.js');
+const { createEventSchema, getEventSchema } = require('../validations/event.validation');
 
-//view events (optional auth)
-router.get('/',protect, getEvents);
+router.get('/', protect, validate(getEventSchema), getEvents);
 
 //create event (organizer only)
-router.post('/',protect,isOrganizer, upload.single('image'), validate(createEventSchema), createEvent);
+router.post('/', protect, isOrganizer, upload.single('image'), validate(createEventSchema), createEvent);
 
 router.get('/organizer', protect, isOrganizer, getOrganizerEvents);
 

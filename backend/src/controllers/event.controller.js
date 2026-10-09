@@ -5,62 +5,62 @@ const catchAsync = require('../utils/catchAsync');
 const Registration = require('../models/Registration');
 
 const createEvent = catchAsync(async (req, res, next) => {
-        
-        const imageUrl = req.file ? req.file.path : '';
-        
-        //Create event
-        const event = await Event.create({
-            ...req.body,
-            image: imageUrl,
-            createdBy: req.user._id,
-            collegeId: req.user.collegeId
-        });
 
-        res.status(201).json(new ApiResponse(201,event,'Event created successfully'));
+    const imageUrl = req.file ? req.file.path : '';
+
+    //Create event
+    const event = await Event.create({
+        ...req.body,
+        image: imageUrl,
+        createdBy: req.user._id,
+        collegeId: req.user.collegeId
+    });
+
+    res.status(201).json(new ApiResponse(201, event, 'Event created successfully'));
 });
 
 const getEvents = catchAsync(async (req, res, next) => {
-        const {past, page, limit, search} = req.query;
+    const { past, page, limit, search } = req.query;
 
-        //Pagination logic
-        const skip = (page - 1) * limit;
+    //Pagination logic
+    const skip = (page - 1) * limit;
 
-        const query = {
-            isPublished: true,
-            collegeId: req.user.collegeId
-        };
+    const query = {
+        isPublished: true,
+        collegeId: req.user.collegeId
+    };
 
-        if(search) {
-            query.title = { $regex: search, $options: 'i'};
+    if (search) {
+        query.title = { $regex: search, $options: 'i' };
+    }
+
+    const today = new Date();
+
+    if (past === 'true') {
+        query.date = { $lt: today };
+    }
+    else {
+        query.date = { $gte: today };
+    }
+
+    //Execute query with pagination
+    const events = await Event.find(query)
+        .sort({ date: past === 'true' ? -1 : 1 })
+        .skip(skip)
+        .limit(limit);
+
+    //Get Total Count for Frontend
+    const totalEvents = await Event.countDocuments(query);
+
+    res.status(200).json(new ApiResponse(200, {
+        events,
+        pagination: {
+            totalEvents,
+            currentPage: page,
+            totalPages: Math.ceil(totalEvents / limit),
+            hasNextPage: page * limit < totalEvents
         }
-
-        const today = new Date();
-
-        if(past === 'true'){
-            query.date = {$lt: today};
-        }
-        else{
-            query.date = {$gte: today};
-        }
-
-        //Execute query with pagination
-        const events = await Event.find(query)
-            .sort({date: past === 'true' ? -1 : 1})
-            .skip(skip)
-            .limit(limit);
-
-        //Get Total Count for Frontend
-        const totalEvents = await Event.countDocuments(query);
-
-        res.status(200).json(new ApiResponse(200, {
-            events,
-            pagination: {
-                totalEvents,
-                currentPage: page,
-                totalPages: Math.ceil(totalEvents/limit),
-                hasNextPage: page * limit < totalEvents
-            }
-        },'Event fetched successfully'));
+    }, 'Event fetched successfully'));
 });
 
 const getEventById = catchAsync(async (req, res, next) => {
@@ -80,20 +80,20 @@ const getEventById = catchAsync(async (req, res, next) => {
 
     // 3. Making sure the event belongs to the user's college
     if (event.collegeId.toString() !== req.user.collegeId.toString()) {
-         return res.status(403).json(
-             new ApiResponse(403, null, 'You are not authorized to view events from other colleges')
-         );
+        return res.status(403).json(
+            new ApiResponse(403, null, 'You are not authorized to view events from other colleges')
+        );
     }
 
     let isUserRegistered = false;
 
-    if(req.user) {
+    if (req.user) {
         const existingUser = await Registration.findOne({
             eventId: event._id,
-            userId: req.user._id 
+            userId: req.user._id
         });
 
-        if(existingUser) {
+        if (existingUser) {
             isUserRegistered = true;
         }
     }
@@ -110,15 +110,9 @@ const getEventById = catchAsync(async (req, res, next) => {
 });
 
 const getOrganizerEvents = catchAsync(async (req, res) => {
-    const events = await Event.find({ createdBy: req.user._id})
-        .sort({createdAt: -1})
+    const events = await Event.find({ createdBy: req.user._id })
+        .sort({ createdAt: -1 })
         .lean();
-
-    // Loop through and count registrations for each event
-    for (let event of events) {
-        const count = await Registration.countDocuments({ eventId: event._id });
-        event.registeredCount = count; // Attach the count to the object
-    }
 
     return res.status(200).json(
         new ApiResponse(200, events, 'Organizer events fetched successfully')
@@ -128,41 +122,42 @@ const getOrganizerEvents = catchAsync(async (req, res) => {
 const deleteEvent = catchAsync(async (req, res) => {
     const event = await Event.findById(req.params.id);
 
-    if(!event) {
+    if (!event) {
         return res.status(404).json(
             new ApiResponse(404, null, 'Event not found')
         );
     }
 
-    if(event.createdBy.toString() !== req.user._id.toString()) {
+    if (event.createdBy.toString() !== req.user._id.toString()) {
         return res.status(403).json(
             new ApiResponse(403, null, 'You are not authorized to delete this event.')
         );
     }
 
     await event.deleteOne();
+    await Registration.deleteMany({ eventId: event._id });
 
     return res.status(200).json(
         new ApiResponse(200, null, 'Event deleted successfully')
     );
 })
 
-const getEventAttendees = catchAsync( async (req, res) => {
+const getEventAttendees = catchAsync(async (req, res) => {
     //1. Verify the event exits and belongs to this organizer
     const event = await Event.findById(req.params.id);
 
-    if(!event){
+    if (!event) {
         return res.status(404).json(new ApiResponse(404, null, 'Event not found'));
     }
 
-    if(event.createdBy.toString() !== req.user._id.toString()) {
+    if (event.createdBy.toString() !== req.user._id.toString()) {
         return res.status(403).json(new ApiResponse(403, null, "Not authorized to view this event's attendees"));
     }
 
     //2. Fetch the registrations and populate the student details
 
     const attendees = await Registration.find({ eventId: req.params.id })
-        .populate('userId','name email collegeId');
+        .populate('userId', 'name email collegeId');
 
     //3. Return the data
     return res.status(200).json(
@@ -170,8 +165,8 @@ const getEventAttendees = catchAsync( async (req, res) => {
     );
 })
 
-const updateEvent = catchAsync( async (req, res) => {
-    
+const updateEvent = catchAsync(async (req, res) => {
+
     //1. Find the event
     let event = await Event.findById(req.params.id);
 
@@ -184,27 +179,34 @@ const updateEvent = catchAsync( async (req, res) => {
         return res.status(403).json(new ApiResponse(403, null, 'You are not authorized to edit this event.'))
     }
 
+    //3. Can't shrink capacity below people who already registered
     const updatePayload = { ...req.body };
-
-    if (req.file) {
-        updatePayload.image = req.file.path; 
+    
+    if (updatePayload.capacity !== undefined && Number(updatePayload.capacity) < event.registeredCount) {
+        return res.status(400).json(
+            new ApiResponse(400, null, `Capacity cannot be lower than current registrations (${event.registeredCount})`)
+        );
     }
 
-    //3. Update the event with the new data from req.body
+    if (req.file) {
+        updatePayload.image = req.file.path;
+    }
+
+    //4. Update the event with the new data from req.body
     event = await Event.findByIdAndUpdate(req.params.id, updatePayload, {
         new: true,
         runValidators: true
     });
 
-    //4. Return success response
+    //5. Return success response
     return res.status(200).json(
         new ApiResponse(200, event, 'Event updated successfully')
     );
 
 });
 
-const getMyTickets = catchAsync( async (req, res) => {
-    const tickets = await Registration.find({userId: req.user._id})
+const getMyTickets = catchAsync(async (req, res) => {
+    const tickets = await Registration.find({ userId: req.user._id })
         .populate('eventId', 'title date time venue')
         .sort({ createdAt: -1 });
 
@@ -213,4 +215,4 @@ const getMyTickets = catchAsync( async (req, res) => {
     );
 });
 
-module.exports = {createEvent,getEvents,getEventById,getOrganizerEvents, deleteEvent, getEventAttendees, updateEvent, getMyTickets};
+module.exports = { createEvent, getEvents, getEventById, getOrganizerEvents, deleteEvent, getEventAttendees, updateEvent, getMyTickets };

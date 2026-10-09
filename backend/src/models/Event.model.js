@@ -54,8 +54,15 @@ const eventSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        registeredCount: {
+            type: Number,
+            default: 0,
+            min: 0
+        }
     },
-    {timestamps: true}
+    { timestamps: true }
 );
 
-module.exports = mongoose.model('Event',eventSchema);
+eventSchema.index({ collegeId: 1, date: 1 });
+
+module.exports = mongoose.model('Event', eventSchema);

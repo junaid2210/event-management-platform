@@ -8,9 +8,15 @@ const validate = (schema) => (req, res, next) => {
       params: req.params,
     });
     
-    req.body = parsedData.body;
-    req.query = parsedData.query;
-    req.params = parsedData.params;
+    if (parsedData.body) req.body = parsedData.body;
+    if (parsedData.params) req.params = parsedData.params;
+    if (parsedData.query) {
+        Object.defineProperty(req, 'query', {
+            value: parsedData.query,
+            writable: true,
+            configurable: true
+        });
+    }
 
     next(); 
   } catch (err) {
